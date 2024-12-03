@@ -12,7 +12,7 @@ import {
   const app = new Application();
 
   // Initialize the application
-  await app.init({ width: 800, height: 600 });
+  await app.init({ width: 1280, height: 720 });
 
   // Add the view to the DOM
   document.body.appendChild(app.canvas);
