@@ -14,6 +14,14 @@ export class Game {
     this.bulletCount = 0;
     this.gameOver = false;
     this.starBackground = new StarBackground(app);
+    this.timer = 60; // Таймер на 60 секунд
+    this.timerText = new Text(`Time: ${this.timer}`, {
+      fontSize: 24,
+      fill: 0xffffff,
+    });
+    this.timerText.x = 10;
+    this.timerText.y = 10;
+    this.app.stage.addChild(this.timerText);
     this.init();
   }
 
@@ -22,12 +30,13 @@ export class Game {
     this.createAsteroids();
     this.setupControls();
     this.startGameLoop();
+    this.startTimer();
   }
 
   createAsteroids() {
     for (let i = 0; i < 5; i++) {
-      const x = Math.random() * (this.app.canvas.width - 40) + 20;
-      const y = Math.random() * (this.app.canvas.height / 2 - 40) + 20;
+      const x = Math.random() * (this.app.view.width - 40) + 20;
+      const y = Math.random() * (this.app.view.height / 2 - 40) + 20;
       this.asteroids.push(new Asteroid(this.app, x, y));
     }
   }
@@ -74,24 +83,36 @@ export class Game {
   }
 
   update() {
+    if (this.gameOver) return;
+
     this.bullets.forEach((bullet) => bullet.update());
     this.checkCollisions();
 
     if (this.asteroids.length === 0) {
       this.endGame("YOU WIN");
     } else if (
-      this.bulletCount >= this.maxBullets &&
-      this.bullets.length === 0
+      this.bulletCount >= this.maxBullets && // all bullets are used
+      this.bullets.length === 0 // no bullets on screen
     ) {
       this.endGame("YOU LOSE");
     }
   }
 
   endGame(message) {
+    console.log("End game triggered:", message);
     this.gameOver = true;
-    const text = new Text(message, { fontSize: 50, fill: 0xffffff });
-    text.x = this.app.canvas.width / 2 - text.width / 2;
-    text.y = this.app.canvas.height / 2 - text.height / 2;
+
+    // Создаем текст с сообщением
+    const text = new Text(message, {
+      fontSize: 50,
+      fill: 0xffffff,
+      align: "center",
+    });
+    // center the text
+    text.x = this.app.view.width / 2 - text.width / 2;
+    text.y = this.app.view.height / 2 - text.height / 2;
+
+    console.log("Adding text to stage...");
     this.app.stage.addChild(text);
   }
 
@@ -101,5 +122,23 @@ export class Game {
         this.update();
       }
     });
+  }
+
+  // new method for starting the timer
+  startTimer() {
+    const timerInterval = setInterval(() => {
+      if (this.gameOver) {
+        clearInterval(timerInterval);
+        return;
+      }
+
+      this.timer--;
+      this.timerText.text = `Time: ${this.timer}`;
+
+      if (this.timer <= 0) {
+        clearInterval(timerInterval);
+        this.endGame("YOU LOSE");
+      }
+    }, 1000);
   }
 }
