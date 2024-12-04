@@ -52,9 +52,7 @@ export class StarBackground {
 
   update(time) {
     this.cameraZ += time.deltaTime * 10 * this.baseSpeed;
-    for (let i = 0; i < this.starAmount; i++) {
-      const star = this.stars[i];
-
+    for (const star of this.stars) {
       if (star.z < this.cameraZ) this.randomizeStar(star);
 
       const z = star.z - this.cameraZ;
