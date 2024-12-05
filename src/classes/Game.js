@@ -51,6 +51,12 @@ export class Game {
         this.shoot();
       }
     });
+
+    window.addEventListener("keyup", (e) => {
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        this.player.stop();
+      }
+    });
   }
 
   shoot() {

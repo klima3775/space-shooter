@@ -10,18 +10,51 @@ export class Player {
     this.sprite.x = this.app.view.width / 2 - 25;
     this.sprite.y = this.app.view.height - 60;
     this.app.stage.addChild(this.sprite);
-    this.speed = 40;
+    this.speed = 5;
+    this.direction = 0;
+
+    this.update = this.update.bind(this);
+    requestAnimationFrame(this.update);
+
+    window.addEventListener("keydown", this.onKeyDown.bind(this));
+    window.addEventListener("keyup", this.onKeyUp.bind(this));
+  }
+
+  onKeyDown(event) {
+    if (event.key === "ArrowLeft") {
+      this.moveLeft();
+    } else if (event.key === "ArrowRight") {
+      this.moveRight();
+    }
+  }
+
+  onKeyUp(event) {
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      this.stop();
+    }
   }
 
   moveLeft() {
-    if (this.sprite.x > 0) {
-      this.sprite.x -= this.speed;
-    }
+    this.direction = -1;
   }
 
   moveRight() {
-    if (this.sprite.x < this.app.view.width - 50) {
+    this.direction = 1;
+  }
+
+  stop() {
+    this.direction = 0;
+  }
+
+  update() {
+    if (this.direction === -1 && this.sprite.x > 0) {
+      this.sprite.x -= this.speed;
+    } else if (
+      this.direction === 1 &&
+      this.sprite.x < this.app.view.width - 50
+    ) {
       this.sprite.x += this.speed;
     }
+    requestAnimationFrame(this.update);
   }
 }
