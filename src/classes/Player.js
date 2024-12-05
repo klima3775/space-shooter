@@ -4,9 +4,9 @@ export class Player {
   constructor(app) {
     this.app = app;
     this.sprite = new Graphics();
-    this.sprite.beginFill(0x66ccff);
-    this.sprite.drawRect(0, 0, 50, 50);
-    this.sprite.endFill();
+    this.sprite.fill(0x66ccff);
+    this.sprite.rect(0, 0, 50, 50);
+    this.sprite.fill();
     this.sprite.x = this.app.view.width / 2 - 25;
     this.sprite.y = this.app.view.height - 60;
     this.app.stage.addChild(this.sprite);
