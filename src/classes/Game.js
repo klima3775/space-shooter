@@ -91,13 +91,8 @@ export class Game {
     if (this.asteroids.length === 0) {
       this.endGame("YOU WIN");
     } else if (
-      this.bulletCount >= this.maxBullets && // all bullets are used
-      this.bullets.length === 10
-    ) {
-      this.endGame("YOU LOSE");
-    } else if (
       this.bulletCount >= this.maxBullets &&
-      this.asteroids.length > 0
+      (this.bullets.length === 0 || this.asteroids.length > 0) // no bullets on screen or asteroids remain
     ) {
       this.endGame("YOU LOSE");
     }
