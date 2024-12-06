@@ -96,7 +96,11 @@ export class Game {
     this.checkCollisions();
 
     if (this.asteroids.length === 0) {
-      this.boss = new Boss(this.app);
+      if (!this.boss) {
+        this.boss = new Boss(this.app);
+      } else {
+        this.boss.update();
+      }
     } else if (
       this.bulletCount >= this.maxBullets &&
       (this.bullets.length === 0 || this.asteroids.length > 0) // no bullets on screen or asteroids remain
