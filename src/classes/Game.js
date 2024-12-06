@@ -65,7 +65,8 @@ export class Game {
       const bullet = new Bullet(
         this.app,
         this.player.sprite.x + 22.5,
-        this.player.sprite.y
+        this.player.sprite.y,
+        -1
       );
       this.bullets.push(bullet);
       this.bulletCount++;

@@ -41,7 +41,10 @@ export class Boss {
       this.app,
       this.sprite.x + 50,
       this.sprite.y + 50,
-      true
+      1,
+      40, // width
+      40, // height
+      1 // speed
     );
     this.bullets.push(bullet);
     this.app.stage.addChild(bullet.sprite);
