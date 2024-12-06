@@ -3,6 +3,7 @@ import { Player } from "./Player.js";
 import { Bullet } from "./Bullet.js";
 import { Asteroid } from "./Asteroid.js";
 import { StarBackground } from "./StarBackground.js";
+import { Boss } from "./Boss.js";
 
 export class Game {
   constructor(app) {
@@ -95,7 +96,7 @@ export class Game {
     this.checkCollisions();
 
     if (this.asteroids.length === 0) {
-      this.endGame("YOU WIN");
+      this.boss = new Boss(this.app);
     } else if (
       this.bulletCount >= this.maxBullets &&
       (this.bullets.length === 0 || this.asteroids.length > 0) // no bullets on screen or asteroids remain
