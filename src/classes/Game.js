@@ -28,10 +28,18 @@ export class Game {
 
   async init() {
     await this.starBackground.init();
-    this.createAsteroids();
+
+    if (this.asteroids.length === 0 && !this.boss) {
+      this.createAsteroids();
+    }
+
     this.setupControls();
+
+    if (!this.boss) {
+      this.startTimer();
+    }
+
     this.startGameLoop();
-    this.startTimer();
   }
 
   createAsteroids() {
@@ -74,6 +82,7 @@ export class Game {
   }
 
   checkCollisions() {
+    // check collision with asteroids
     this.bullets.forEach((bullet, bulletIndex) => {
       this.asteroids.forEach((asteroid, asteroidIndex) => {
         const dx = bullet.sprite.x - asteroid.sprite.x;
@@ -87,6 +96,30 @@ export class Game {
           this.asteroids.splice(asteroidIndex, 1);
         }
       });
+
+      // check collision with boss
+      if (this.boss) {
+        const bulletBounds = bullet.sprite.getBounds();
+        const bossBounds = this.boss.sprite.getBounds();
+
+        if (
+          bulletBounds.x < bossBounds.x + bossBounds.width &&
+          bulletBounds.x + bulletBounds.width > bossBounds.x &&
+          bulletBounds.y < bossBounds.y + bossBounds.height &&
+          bulletBounds.y + bulletBounds.height > bossBounds.y
+        ) {
+          this.app.stage.removeChild(bullet.sprite);
+          this.bullets.splice(bulletIndex, 1);
+
+          // boss take damage
+          if (this.boss.takeDamage()) {
+            this.boss.destroy();
+            this.boss = null;
+
+            this.endGame("YOU WIN");
+          }
+        }
+      }
     });
   }
 
@@ -99,32 +132,38 @@ export class Game {
     if (this.asteroids.length === 0) {
       if (!this.boss) {
         this.boss = new Boss(this.app);
+        this.bulletCount = 0;
+        this.maxBullets = 10;
+
+        this.bullets.forEach((bullet) => {
+          this.app.stage.removeChild(bullet.sprite);
+        });
+        this.bullets = [];
       } else {
         this.boss.update();
       }
-    } else if (
+    }
+
+    if (
       this.bulletCount >= this.maxBullets &&
-      (this.bullets.length === 0 || this.asteroids.length > 0) // no bullets on screen or asteroids remain
+      (this.bullets.length === 0 || this.asteroids.length > 0)
     ) {
       this.endGame("YOU LOSE");
     }
   }
 
   endGame(message) {
-    console.log("End game triggered:", message);
     this.gameOver = true;
 
-    // Создаем текст с сообщением
     const text = new Text(message, {
       fontSize: 50,
       fill: 0xffffff,
       align: "center",
     });
-    // center the text
+
     text.x = this.app.view.width / 2 - text.width / 2;
     text.y = this.app.view.height / 2 - text.height / 2;
 
-    console.log("Adding text to stage...");
     this.app.stage.addChild(text);
   }
 
@@ -136,8 +175,11 @@ export class Game {
     });
   }
 
-  // new method for starting the timer
   startTimer() {
+    if (this.timer === 0) {
+      this.timer = 60;
+    }
+
     const timerInterval = setInterval(() => {
       if (this.gameOver) {
         clearInterval(timerInterval);

@@ -5,9 +5,9 @@ export class Boss {
   constructor(app) {
     this.app = app;
     this.sprite = new Graphics();
-    this.sprite.beginFill(0xff0000);
-    this.sprite.drawRect(0, 0, 100, 50);
-    this.sprite.endFill();
+    this.sprite.fill(0xff0000);
+    this.sprite.rect(0, 0, 100, 50);
+    this.sprite.fill();
     this.sprite.x = app.view.width / 2 - 50;
     this.sprite.y = 50;
     this.hp = 4;
@@ -30,10 +30,10 @@ export class Boss {
 
   updateHpBar() {
     this.hpBar.clear();
-    this.hpBar.beginFill(0x00ff00);
+    this.hpBar.fill(0x00ff00);
     const barWidth = (this.hp / 4) * 100;
-    this.hpBar.drawRect(this.sprite.x, this.sprite.y - 10, barWidth, 5);
-    this.hpBar.endFill();
+    this.hpBar.rect(this.sprite.x, this.sprite.y - 10, barWidth, 5);
+    this.hpBar.fill();
   }
 
   shoot() {
