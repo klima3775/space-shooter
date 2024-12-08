@@ -1,7 +1,7 @@
 import { Graphics } from "pixi.js";
 
 export class Bullet {
-  constructor(app, x, y, direction = -1, width = 5, height = 10, speed = 8) {
+  constructor(app, x, y, direction = -1, speed = 8) {
     this.app = app;
     this.sprite = new Graphics();
     this.sprite.fill(0xffffff);
@@ -12,8 +12,6 @@ export class Bullet {
     this.app.stage.addChild(this.sprite);
     this.speed = speed;
     this.direction = direction;
-    this.width = width;
-    this.height = height;
   }
 
   update() {

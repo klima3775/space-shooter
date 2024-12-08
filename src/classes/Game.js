@@ -121,6 +121,25 @@ export class Game {
         }
       }
     });
+
+    // check collision between boss bullets and player
+    if (this.boss) {
+      this.boss.bullets.forEach((bullet, bulletIndex) => {
+        const bulletBounds = bullet.sprite.getBounds();
+        const playerBounds = this.player.sprite.getBounds();
+
+        if (
+          bulletBounds.x < playerBounds.x + playerBounds.width &&
+          bulletBounds.x + bulletBounds.width > playerBounds.x &&
+          bulletBounds.y < playerBounds.y + playerBounds.height &&
+          bulletBounds.y + bulletBounds.height > playerBounds.y
+        ) {
+          this.app.stage.removeChild(bullet.sprite);
+          this.boss.bullets.splice(bulletIndex, 1);
+          this.endGame("YOU LOSE");
+        }
+      });
+    }
   }
 
   update() {

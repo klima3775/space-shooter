@@ -1,4 +1,4 @@
-import { Graphics, Text } from "pixi.js";
+import { Graphics } from "pixi.js";
 import { Bullet } from "./Bullet.js";
 
 export class Boss {
@@ -41,9 +41,7 @@ export class Boss {
       this.app,
       this.sprite.x + 50,
       this.sprite.y + 50,
-      1,
-      40, // width
-      40, // height
+      1, // direction
       1 // speed
     );
     this.bullets.push(bullet);
