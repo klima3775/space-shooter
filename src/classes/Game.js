@@ -81,15 +81,25 @@ export class Game {
     }
   }
 
+  // Function to check if two rectangles intersect
+  isIntersecting(rect1, rect2) {
+    return (
+      rect1.x < rect2.x + rect2.width &&
+      rect1.x + rect1.width > rect2.x &&
+      rect1.y < rect2.y + rect2.height &&
+      rect1.y + rect1.height > rect2.y
+    );
+  }
+
   checkCollisions() {
     // check collision with asteroids
     this.bullets.forEach((bullet, bulletIndex) => {
-      this.asteroids.forEach((asteroid, asteroidIndex) => {
-        const dx = bullet.sprite.x - asteroid.sprite.x;
-        const dy = bullet.sprite.y - asteroid.sprite.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+      const bulletBounds = bullet.sprite.getBounds();
 
-        if (distance < 20) {
+      this.asteroids.forEach((asteroid, asteroidIndex) => {
+        const asteroidBounds = asteroid.sprite.getBounds();
+
+        if (this.isIntersecting(bulletBounds, asteroidBounds)) {
           this.app.stage.removeChild(bullet.sprite);
           this.app.stage.removeChild(asteroid.sprite);
           this.bullets.splice(bulletIndex, 1);
@@ -99,15 +109,9 @@ export class Game {
 
       // check collision with boss
       if (this.boss) {
-        const bulletBounds = bullet.sprite.getBounds();
         const bossBounds = this.boss.sprite.getBounds();
 
-        if (
-          bulletBounds.x < bossBounds.x + bossBounds.width &&
-          bulletBounds.x + bulletBounds.width > bossBounds.x &&
-          bulletBounds.y < bossBounds.y + bossBounds.height &&
-          bulletBounds.y + bulletBounds.height > bossBounds.y
-        ) {
+        if (this.isIntersecting(bulletBounds, bossBounds)) {
           this.app.stage.removeChild(bullet.sprite);
           this.bullets.splice(bulletIndex, 1);
 
@@ -128,12 +132,7 @@ export class Game {
         const bulletBounds = bullet.sprite.getBounds();
         const playerBounds = this.player.sprite.getBounds();
 
-        if (
-          bulletBounds.x < playerBounds.x + playerBounds.width &&
-          bulletBounds.x + bulletBounds.width > playerBounds.x &&
-          bulletBounds.y < playerBounds.y + playerBounds.height &&
-          bulletBounds.y + bulletBounds.height > playerBounds.y
-        ) {
+        if (this.isIntersecting(bulletBounds, playerBounds)) {
           this.app.stage.removeChild(bullet.sprite);
           this.boss.bullets.splice(bulletIndex, 1);
           this.endGame("YOU LOSE");
