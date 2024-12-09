@@ -1,8 +1,9 @@
 import { Graphics } from "pixi.js";
 
 export class Player {
-  constructor(app) {
+  constructor(app, game) {
     this.app = app;
+    this.game = game;
     this.sprite = new Graphics();
     this.sprite.fill(0x66ccff);
     this.sprite.rect(0, 0, 50, 50);
@@ -25,6 +26,8 @@ export class Player {
       this.moveLeft();
     } else if (event.key === "ArrowRight") {
       this.moveRight();
+    } else if (event.key === " ") {
+      this.game.shoot();
     }
   }
 

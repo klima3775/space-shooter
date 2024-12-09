@@ -8,14 +8,14 @@ import { Boss } from "./Boss.js";
 export class Game {
   constructor(app) {
     this.app = app;
-    this.player = new Player(app);
+    this.player = new Player(app, this);
     this.bullets = [];
     this.asteroids = [];
     this.maxBullets = 10;
     this.bulletCount = 0;
     this.gameOver = false;
     this.starBackground = new StarBackground(app);
-    this.timer = 60; // Таймер на 60 секунд
+    this.timer = 60;
     this.timerText = new Text(`Time: ${this.timer}`, {
       fontSize: 24,
       fill: 0xffffff,
@@ -41,8 +41,6 @@ export class Game {
       this.createAsteroids();
     }
 
-    this.setupControls();
-
     if (!this.boss) {
       this.startTimer();
     }
@@ -58,24 +56,6 @@ export class Game {
     }
   }
 
-  setupControls() {
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowLeft") {
-        this.player.moveLeft();
-      } else if (e.key === "ArrowRight") {
-        this.player.moveRight();
-      } else if (e.key === " ") {
-        this.shoot();
-      }
-    });
-
-    window.addEventListener("keyup", (e) => {
-      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-        this.player.stop();
-      }
-    });
-  }
-
   shoot() {
     if (this.bulletCount <= this.maxBullets) {
       const bullet = new Bullet(
@@ -87,13 +67,13 @@ export class Game {
       this.bullets.push(bullet);
       this.bulletCount++;
 
-      // Обновляем текст оставшихся пуль
+      // update bullet text
       this.bulletText.text = `Bullets: ${Math.max(
         this.maxBullets - this.bulletCount,
         0
       )}`;
 
-      // Предупреждение, если выпущена последняя доступная пуля
+      // warning when last bullet is shot
       if (this.bulletCount === this.maxBullets) {
         const warningText = new Text("Last bullet!", {
           fontSize: 20,
@@ -104,14 +84,14 @@ export class Game {
 
         this.app.stage.addChild(warningText);
 
-        // Убираем предупреждение через 1 секунду
+        // reset warning text after 1 second
         setTimeout(() => {
           this.app.stage.removeChild(warningText);
         }, 1000);
       }
     }
 
-    // Проверка поражения, если выпущено больше допустимого количества пуль
+    // check if player has no bullets left and no asteroids left
     if (
       this.bulletCount > this.maxBullets &&
       (this.bullets.length === 0 || this.asteroids.length > 0 || this.boss)
@@ -130,7 +110,7 @@ export class Game {
   }
 
   checkCollisions() {
-    // Проверка столкновений пуль с астероидами
+    // check for collisions between bullets and asteroids
     this.bullets.forEach((bullet, bulletIndex) => {
       const bulletBounds = bullet.sprite.getBounds();
 
@@ -145,7 +125,7 @@ export class Game {
         }
       });
 
-      // Проверка столкновений с боссом
+      // check for collisions between bullets and boss
       if (this.boss) {
         const bossBounds = this.boss.sprite.getBounds();
 
@@ -162,7 +142,7 @@ export class Game {
       }
     });
 
-    // Проверка столкновений пуль босса с игроком
+    // check for collisions between player and asteroids
     if (this.boss) {
       this.boss.bullets.forEach((bullet, bulletIndex) => {
         const bulletBounds = bullet.sprite.getBounds();
@@ -186,7 +166,7 @@ export class Game {
     if (this.asteroids.length === 0) {
       if (!this.boss) {
         this.boss = new Boss(this.app);
-        this.bulletCount = 0; // Скидаємо кількість куль
+        this.bulletCount = 0;
         this.maxBullets = 10;
 
         this.bullets.forEach((bullet) => {
@@ -194,7 +174,7 @@ export class Game {
         });
         this.bullets = [];
 
-        // Оновлюємо текст про кулі
+        // update bullet text
         this.bulletText.text = `Bullets: ${this.maxBullets}`;
 
         this.resetTimer();
@@ -219,6 +199,7 @@ export class Game {
     this.app.stage.addChild(text);
   }
 
+  // timer and game loop
   startGameLoop() {
     this.app.ticker.add(() => {
       if (!this.gameOver) {
