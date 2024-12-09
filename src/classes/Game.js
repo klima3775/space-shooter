@@ -157,6 +157,7 @@ export class Game {
           this.app.stage.removeChild(bullet.sprite);
         });
         this.bullets = [];
+        this.resetTimer();
       } else {
         this.boss.update();
       }
@@ -198,9 +199,9 @@ export class Game {
       this.timer = 60;
     }
 
-    const timerInterval = setInterval(() => {
+    this.timerInterval = setInterval(() => {
       if (this.gameOver) {
-        clearInterval(timerInterval);
+        clearInterval(this.timerInterval);
         return;
       }
 
@@ -208,9 +209,16 @@ export class Game {
       this.timerText.text = `Time: ${this.timer}`;
 
       if (this.timer <= 0) {
-        clearInterval(timerInterval);
+        clearInterval(this.timerInterval);
         this.endGame("YOU LOSE");
       }
     }, 1000);
+  }
+
+  resetTimer() {
+    clearInterval(this.timerInterval);
+    this.timer = 60;
+    this.timerText.text = `Time: ${this.timer}`;
+    this.startTimer();
   }
 }
