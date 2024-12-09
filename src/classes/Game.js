@@ -22,7 +22,15 @@ export class Game {
     });
     this.timerText.x = 10;
     this.timerText.y = 10;
+    this.bulletText = new Text(`Bullets: ${this.maxBullets}`, {
+      fontSize: 24,
+      fill: 0xffffff,
+    });
+    this.bulletText.x = 10;
+    this.bulletText.y = 40;
+
     this.app.stage.addChild(this.timerText);
+    this.app.stage.addChild(this.bulletText);
     this.init();
   }
 
@@ -69,7 +77,7 @@ export class Game {
   }
 
   shoot() {
-    if (this.bulletCount < this.maxBullets) {
+    if (this.bulletCount <= this.maxBullets) {
       const bullet = new Bullet(
         this.app,
         this.player.sprite.x + 22.5,
@@ -78,10 +86,40 @@ export class Game {
       );
       this.bullets.push(bullet);
       this.bulletCount++;
+
+      // Обновляем текст оставшихся пуль
+      this.bulletText.text = `Bullets: ${Math.max(
+        this.maxBullets - this.bulletCount,
+        0
+      )}`;
+
+      // Предупреждение, если выпущена последняя доступная пуля
+      if (this.bulletCount === this.maxBullets) {
+        const warningText = new Text("Last bullet!", {
+          fontSize: 20,
+          fill: 0xff0000,
+        });
+        warningText.x = this.app.view.width / 2 - warningText.width / 2;
+        warningText.y = this.app.view.height / 2 - warningText.height / 2;
+
+        this.app.stage.addChild(warningText);
+
+        // Убираем предупреждение через 1 секунду
+        setTimeout(() => {
+          this.app.stage.removeChild(warningText);
+        }, 1000);
+      }
+    }
+
+    // Проверка поражения, если выпущено больше допустимого количества пуль
+    if (
+      this.bulletCount > this.maxBullets &&
+      (this.bullets.length === 0 || this.asteroids.length > 0 || this.boss)
+    ) {
+      this.endGame("YOU LOSE");
     }
   }
 
-  // Function to check if two rectangles intersect
   isIntersecting(rect1, rect2) {
     return (
       rect1.x < rect2.x + rect2.width &&
@@ -92,7 +130,7 @@ export class Game {
   }
 
   checkCollisions() {
-    // check collision with asteroids
+    // Проверка столкновений пуль с астероидами
     this.bullets.forEach((bullet, bulletIndex) => {
       const bulletBounds = bullet.sprite.getBounds();
 
@@ -107,7 +145,7 @@ export class Game {
         }
       });
 
-      // check collision with boss
+      // Проверка столкновений с боссом
       if (this.boss) {
         const bossBounds = this.boss.sprite.getBounds();
 
@@ -115,18 +153,16 @@ export class Game {
           this.app.stage.removeChild(bullet.sprite);
           this.bullets.splice(bulletIndex, 1);
 
-          // boss take damage
           if (this.boss.takeDamage()) {
             this.boss.destroy();
             this.boss = null;
-
             this.endGame("YOU WIN");
           }
         }
       }
     });
 
-    // check collision between boss bullets and player
+    // Проверка столкновений пуль босса с игроком
     if (this.boss) {
       this.boss.bullets.forEach((bullet, bulletIndex) => {
         const bulletBounds = bullet.sprite.getBounds();
@@ -150,24 +186,21 @@ export class Game {
     if (this.asteroids.length === 0) {
       if (!this.boss) {
         this.boss = new Boss(this.app);
-        this.bulletCount = 0;
+        this.bulletCount = 0; // Скидаємо кількість куль
         this.maxBullets = 10;
 
         this.bullets.forEach((bullet) => {
           this.app.stage.removeChild(bullet.sprite);
         });
         this.bullets = [];
+
+        // Оновлюємо текст про кулі
+        this.bulletText.text = `Bullets: ${this.maxBullets}`;
+
         this.resetTimer();
       } else {
         this.boss.update();
       }
-    }
-
-    if (
-      this.bulletCount >= this.maxBullets &&
-      (this.bullets.length === 0 || this.asteroids.length > 0)
-    ) {
-      this.endGame("YOU LOSE");
     }
   }
 
