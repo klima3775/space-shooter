@@ -176,10 +176,6 @@ export class Game {
           this.app.stage.removeChild(bullet.sprite);
           this.boss.bullets.splice(bulletIndex, 1);
 
-          // Remove player sprite
-          this.app.stage.removeChild(this.player.sprite);
-          this.player = null;
-
           this.endGame("YOU LOSE");
         }
       });
@@ -218,10 +214,12 @@ export class Game {
   endGame(message) {
     this.gameOver = true;
 
-    // Remove all children from the stage except the text
-    while (this.app.stage.children.length > 0) {
-      this.app.stage.removeChild(this.app.stage.children[0]);
+    if (this.boss) {
+      this.boss.destroy();
     }
+
+    // Удалить все элементы
+    this.app.stage.removeChildren();
 
     const text = new Text(message, {
       fontSize: 50,

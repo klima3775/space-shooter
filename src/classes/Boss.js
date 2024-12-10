@@ -23,7 +23,15 @@ export class Boss {
   init() {
     this.updateHpBar();
 
+    console.log("Boss init: starting shooting interval");
+
     this.shootingInterval = setInterval(() => {
+      if (this.app.gameOver) {
+        console.log("Clearing boss interval due to game over");
+        clearInterval(this.shootingInterval); // Очистка интервала
+        return;
+      }
+      console.log("Boss shooting");
       this.shoot();
     }, 2000);
   }
@@ -63,6 +71,7 @@ export class Boss {
     this.hp--;
 
     if (this.hp <= 0) {
+      this.destroy();
       return true;
     }
 
@@ -83,7 +92,8 @@ export class Boss {
   }
 
   destroy() {
-    clearInterval(this.shootingInterval);
+    console.log("Boss destroyed");
+    clearInterval(this.shootingInterval); // Удаляем интервал
     this.app.stage.removeChild(this.sprite);
     this.app.stage.removeChild(this.hpBar);
     this.bullets.forEach((bullet) => this.app.stage.removeChild(bullet.sprite));
