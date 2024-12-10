@@ -57,6 +57,8 @@ export class Game {
   }
 
   shoot() {
+    if (this.gameOver) return;
+
     if (this.bulletCount <= this.maxBullets) {
       const bullet = new Bullet(
         this.app,

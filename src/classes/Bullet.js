@@ -1,11 +1,11 @@
 import { Graphics } from "pixi.js";
 
 export class Bullet {
-  constructor(app, x, y, direction = -1, speed = 15) {
+  constructor(app, x, y, direction = -1, speed = 15, color = 0xffffff) {
     this.app = app;
     this.sprite = new Graphics();
-    this.sprite.fill(0xffffff);
-    this.sprite.rect(0, 0, 15, 30);
+    this.sprite.fill(color);
+    this.sprite.circle(0, 0, 10);
     this.sprite.fill();
     this.sprite.x = x;
     this.sprite.y = y;
