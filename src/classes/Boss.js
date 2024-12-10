@@ -14,7 +14,7 @@ export class Boss {
     this.hpBar = new Graphics();
     this.bullets = [];
     this.movingDirection = 1;
-    this.speed = 5;
+    this.speed = 6;
     this.app.stage.addChild(this.sprite);
     this.app.stage.addChild(this.hpBar);
     this.init();
@@ -42,7 +42,7 @@ export class Boss {
       this.sprite.x + 50,
       this.sprite.y + 50,
       1, // direction
-      1 // speed
+      5 // speed
     );
     this.bullets.push(bullet);
     this.app.stage.addChild(bullet.sprite);
