@@ -110,7 +110,7 @@ export class Game {
   }
 
   checkCollisions() {
-    // check for collisions between bullets and asteroids
+    // check for collisions between player bullets and asteroids
     this.bullets.forEach((bullet, bulletIndex) => {
       const bulletBounds = bullet.sprite.getBounds();
 
@@ -125,14 +125,16 @@ export class Game {
         }
       });
 
-      // check for collisions between bullets and boss
+      // check for collisions between player bullets and boss
       if (this.boss) {
         const bossBounds = this.boss.sprite.getBounds();
 
         if (this.isIntersecting(bulletBounds, bossBounds)) {
+          // Remove player bullet
           this.app.stage.removeChild(bullet.sprite);
           this.bullets.splice(bulletIndex, 1);
 
+          // Deal damage to boss
           if (this.boss.takeDamage()) {
             this.boss.destroy();
             this.boss = null;
@@ -140,9 +142,24 @@ export class Game {
           }
         }
       }
+
+      // check for collisions between player bullets and boss bullets
+      if (this.boss) {
+        this.boss.bullets.forEach((bossBullet, bossBulletIndex) => {
+          const bossBulletBounds = bossBullet.sprite.getBounds();
+
+          if (this.isIntersecting(bulletBounds, bossBulletBounds)) {
+            // Remove both bullets
+            this.app.stage.removeChild(bullet.sprite);
+            this.app.stage.removeChild(bossBullet.sprite);
+            this.bullets.splice(bulletIndex, 1);
+            this.boss.bullets.splice(bossBulletIndex, 1);
+          }
+        });
+      }
     });
 
-    // check for collisions between player and asteroids
+    // check for collisions between boss bullets and player
     if (this.boss) {
       this.boss.bullets.forEach((bullet, bulletIndex) => {
         const bulletBounds = bullet.sprite.getBounds();

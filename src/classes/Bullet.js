@@ -5,7 +5,7 @@ export class Bullet {
     this.app = app;
     this.sprite = new Graphics();
     this.sprite.fill(0xffffff);
-    this.sprite.rect(0, 0, 5, 10);
+    this.sprite.rect(0, 0, 15, 30);
     this.sprite.fill();
     this.sprite.x = x;
     this.sprite.y = y;
