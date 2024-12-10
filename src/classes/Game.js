@@ -138,7 +138,12 @@ export class Game {
 
           // Deal damage to boss
           if (this.boss.takeDamage()) {
-            this.boss.destroy();
+            this.app.stage.removeChild(this.boss.sprite);
+            this.app.stage.removeChild(this.boss.healthBar);
+            this.boss.bullets.forEach((bossBullet) => {
+              this.app.stage.removeChild(bossBullet.sprite);
+            });
+            this.boss.bullets = [];
             this.boss = null;
             this.endGame("YOU WIN");
           }
@@ -170,6 +175,11 @@ export class Game {
         if (this.isIntersecting(bulletBounds, playerBounds)) {
           this.app.stage.removeChild(bullet.sprite);
           this.boss.bullets.splice(bulletIndex, 1);
+
+          // Remove player sprite
+          this.app.stage.removeChild(this.player.sprite);
+          this.player = null;
+
           this.endGame("YOU LOSE");
         }
       });
@@ -184,19 +194,21 @@ export class Game {
 
     if (this.asteroids.length === 0) {
       if (!this.boss) {
-        this.boss = new Boss(this.app);
-        this.bulletCount = 0;
-        this.maxBullets = 10;
+        if (!this.gameOver) {
+          this.boss = new Boss(this.app);
+          this.bulletCount = 0;
+          this.maxBullets = 10;
 
-        this.bullets.forEach((bullet) => {
-          this.app.stage.removeChild(bullet.sprite);
-        });
-        this.bullets = [];
+          this.bullets.forEach((bullet) => {
+            this.app.stage.removeChild(bullet.sprite);
+          });
+          this.bullets = [];
 
-        // update bullet text
-        this.bulletText.text = `Bullets: ${this.maxBullets}`;
+          // update bullet text
+          this.bulletText.text = `Bullets: ${this.maxBullets}`;
 
-        this.resetTimer();
+          this.resetTimer();
+        }
       } else {
         this.boss.update();
       }
@@ -205,6 +217,11 @@ export class Game {
 
   endGame(message) {
     this.gameOver = true;
+
+    // Remove all children from the stage except the text
+    while (this.app.stage.children.length > 0) {
+      this.app.stage.removeChild(this.app.stage.children[0]);
+    }
 
     const text = new Text(message, {
       fontSize: 50,
