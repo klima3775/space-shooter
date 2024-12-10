@@ -14,7 +14,7 @@ export class Boss {
     this.hpBar = new Graphics();
     this.bullets = [];
     this.movingDirection = 1;
-    this.speed = 2;
+    this.speed = 5;
     this.app.stage.addChild(this.sprite);
     this.app.stage.addChild(this.hpBar);
     this.init();

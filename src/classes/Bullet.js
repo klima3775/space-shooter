@@ -1,7 +1,7 @@
 import { Graphics } from "pixi.js";
 
 export class Bullet {
-  constructor(app, x, y, direction = -1, speed = 8) {
+  constructor(app, x, y, direction = -1, speed = 15) {
     this.app = app;
     this.sprite = new Graphics();
     this.sprite.fill(0xffffff);

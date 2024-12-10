@@ -11,7 +11,7 @@ export class Player {
     this.sprite.x = this.app.view.width / 2 - 25;
     this.sprite.y = this.app.view.height - 60;
     this.app.stage.addChild(this.sprite);
-    this.speed = 5;
+    this.speed = 10;
     this.direction = 0;
 
     this.update = this.update.bind(this);
