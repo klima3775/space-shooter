@@ -176,6 +176,8 @@ export class Game {
           this.app.stage.removeChild(bullet.sprite);
           this.boss.bullets.splice(bulletIndex, 1);
 
+          this.app.stage.removeChild(this.player.sprite);
+
           this.endGame("YOU LOSE");
         }
       });
@@ -214,12 +216,10 @@ export class Game {
   endGame(message) {
     this.gameOver = true;
 
+    // stop boss shooting interval
     if (this.boss) {
-      this.boss.destroy();
+      clearInterval(this.boss.shootingInterval);
     }
-
-    // Удалить все элементы
-    this.app.stage.removeChildren();
 
     const text = new Text(message, {
       fontSize: 50,
