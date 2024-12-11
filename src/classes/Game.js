@@ -4,11 +4,12 @@ import { Bullet } from "./Bullet.js";
 import { Asteroid } from "./Asteroid.js";
 import { StarBackground } from "./StarBackground.js";
 import { Boss } from "./Boss.js";
-
+import { ShatterEffect } from "./ShatterEffect.js";
 export class Game {
   constructor(app) {
     this.app = app;
     this.player = new Player(app, this);
+    this.shatterEffect = new ShatterEffect(app);
     this.bullets = [];
     this.asteroids = [];
     this.maxBullets = 10;
@@ -138,6 +139,10 @@ export class Game {
 
           // Deal damage to boss
           if (this.boss.takeDamage()) {
+            // animate boss death
+            this.shatterEffect.create(this.boss.sprite);
+
+            // remove boss and all boss bullets
             this.app.stage.removeChild(this.boss.sprite);
             this.app.stage.removeChild(this.boss.healthBar);
             this.boss.bullets.forEach((bossBullet) => {
@@ -175,6 +180,8 @@ export class Game {
         if (this.isIntersecting(bulletBounds, playerBounds)) {
           this.app.stage.removeChild(bullet.sprite);
           this.boss.bullets.splice(bulletIndex, 1);
+
+          this.shatterEffect.create(this.player.sprite, 0xffffff);
 
           this.app.stage.removeChild(this.player.sprite);
 

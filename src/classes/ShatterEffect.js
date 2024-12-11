@@ -13,24 +13,19 @@ export class ShatterEffect {
     this.color = color;
   }
 
-  create(target) {
+  create(target, color = this.color) {
     const fragments = [];
 
     for (let i = 0; i < this.numFragments; i++) {
       const fragment = new Graphics();
-      fragment.beginFill(this.color);
-      fragment.drawRect(
-        0,
-        0,
-        this.fragmentSize.width,
-        this.fragmentSize.height
-      ); // Размеры обломка
-      fragment.endFill();
+      fragment.fill(color);
+      fragment.rect(0, 0, this.fragmentSize.width, this.fragmentSize.height);
+      fragment.fill();
 
       fragment.x = target.x + Math.random() * target.width;
       fragment.y = target.y + Math.random() * target.height;
 
-      // Случайная скорость разлета
+      // random velocity
       fragment.vx = (Math.random() - 0.5) * 10;
       fragment.vy = (Math.random() - 0.5) * 10;
 
@@ -42,7 +37,7 @@ export class ShatterEffect {
       fragments.forEach((fragment, index) => {
         fragment.x += fragment.vx;
         fragment.y += fragment.vy;
-        fragment.alpha -= 0.02; // Постепенное исчезновение
+        fragment.alpha -= 0.02;
 
         if (fragment.alpha <= 0) {
           this.app.stage.removeChild(fragment);
