@@ -4,7 +4,7 @@ import legacy from "@vitejs/plugin-legacy";
 export default defineConfig({
   build: {
     target: "es2018",
-    outDir: "build",
+    outDir: "dist",
   },
   server: {
     port: 3000,

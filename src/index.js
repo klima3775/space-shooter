@@ -1,6 +1,5 @@
 import { Application, Assets } from "pixi.js";
 import { Game } from "./classes/Game.js";
-import { Howl } from "howler";
 
 (async () => {
   const app = new Application();
