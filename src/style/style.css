@@ -16,4 +16,26 @@ body {
 
 canvas {
   display: block;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+#startButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#startButton:hover {
+  background-color: #0056b3;
 }
