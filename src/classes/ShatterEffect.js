@@ -37,7 +37,7 @@ export class ShatterEffect {
       fragments.forEach((fragment, index) => {
         fragment.x += fragment.vx;
         fragment.y += fragment.vy;
-        fragment.alpha -= 0.02;
+        fragment.alpha -= 0.005;
 
         if (fragment.alpha <= 0) {
           this.app.stage.removeChild(fragment);
