@@ -13,8 +13,6 @@ import { Howl } from "howler";
     boss: "/src/assets/boss.png",
     player: "/src/assets/spaceship.png",
     asteroid: "/src/assets/asteroid.png",
-    // button: "/src/assets/",
-    startBackground: "/src/assets/startScreenBackground.png",
   };
 
   Assets.addBundle("gameAssets", assets);

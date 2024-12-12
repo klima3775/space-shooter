@@ -64,7 +64,7 @@ export class Game {
     if (this.bulletCount <= this.maxBullets) {
       const bullet = new Bullet(
         this.app,
-        this.player.sprite.x + 50,
+        this.player.sprite.x + 55,
         this.player.sprite.y,
         -1
       );
