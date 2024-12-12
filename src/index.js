@@ -9,9 +9,9 @@ import { Game } from "./classes/Game.js";
   document.body.appendChild(app.canvas);
 
   const assets = {
-    boss: "/src/assets/boss.png",
-    player: "/src/assets/spaceship.png",
-    asteroid: "/src/assets/asteroid.png",
+    boss: "assets/boss.png",
+    player: "assets/spaceship.png",
+    asteroid: "assets/asteroid.png",
   };
 
   Assets.addBundle("gameAssets", assets);
