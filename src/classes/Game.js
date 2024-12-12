@@ -6,9 +6,10 @@ import { StarBackground } from "./StarBackground.js";
 import { Boss } from "./Boss.js";
 import { ShatterEffect } from "./ShatterEffect.js";
 export class Game {
-  constructor(app) {
+  constructor(app, textures) {
     this.app = app;
-    this.player = new Player(app, this);
+    this.textures = textures;
+    this.player = new Player(app, this, textures.player);
     this.shatterEffect = new ShatterEffect(app);
     this.bullets = [];
     this.asteroids = [];
@@ -51,9 +52,9 @@ export class Game {
 
   createAsteroids() {
     for (let i = 0; i < 5; i++) {
-      const x = Math.random() * (this.app.view.width - 40) + 20;
-      const y = Math.random() * (this.app.view.height / 2 - 40) + 20;
-      this.asteroids.push(new Asteroid(this.app, x, y));
+      const x = Math.random() * (this.app.view.width - 150) + 20;
+      const y = Math.random() * (this.app.view.height / 2 - 150) + 20;
+      this.asteroids.push(new Asteroid(this.app, x, y, this.textures.asteroid));
     }
   }
 
@@ -63,7 +64,7 @@ export class Game {
     if (this.bulletCount <= this.maxBullets) {
       const bullet = new Bullet(
         this.app,
-        this.player.sprite.x + 22.5,
+        this.player.sprite.x + 50,
         this.player.sprite.y,
         -1
       );
@@ -200,7 +201,7 @@ export class Game {
     if (this.asteroids.length === 0) {
       if (!this.boss) {
         if (!this.gameOver) {
-          this.boss = new Boss(this.app);
+          this.boss = new Boss(this.app, this.textures.boss);
           this.bulletCount = 0;
           this.maxBullets = 10;
 

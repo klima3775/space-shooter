@@ -1,4 +1,4 @@
-import { Application } from "pixi.js";
+import { Application, Assets } from "pixi.js";
 import { Game } from "./classes/Game.js";
 
 (async () => {
@@ -8,5 +8,15 @@ import { Game } from "./classes/Game.js";
 
   document.body.appendChild(app.canvas);
 
-  const game = new Game(app);
+  const assets = {
+    boss: "/src/assets/boss.png",
+    player: "/src/assets/spaceship.png",
+    asteroid: "/src/assets/asteroid.png",
+  };
+
+  Assets.addBundle("gameAssets", assets);
+
+  const textures = await Assets.loadBundle("gameAssets");
+
+  const game = new Game(app, textures);
 })();

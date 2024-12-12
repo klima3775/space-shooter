@@ -1,15 +1,15 @@
-import { Graphics } from "pixi.js";
+import { Sprite } from "pixi.js";
 
 export class Player {
-  constructor(app, game) {
+  constructor(app, game, texture) {
     this.app = app;
     this.game = game;
-    this.sprite = new Graphics();
-    this.sprite.fill(0x66ccff);
-    this.sprite.rect(0, 0, 50, 50);
-    this.sprite.fill();
+
+    this.sprite = new Sprite(texture);
+    this.sprite.width = 110;
+    this.sprite.height = 85;
     this.sprite.x = this.app.view.width / 2 - 25;
-    this.sprite.y = this.app.view.height - 60;
+    this.sprite.y = this.app.view.height - 90;
     this.app.stage.addChild(this.sprite);
     this.speed = 8;
     this.direction = 0;

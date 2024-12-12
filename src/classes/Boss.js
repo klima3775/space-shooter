@@ -1,13 +1,12 @@
-import { Graphics } from "pixi.js";
+import { Graphics, Sprite } from "pixi.js";
 import { Bullet } from "./Bullet.js";
 
 export class Boss {
-  constructor(app) {
+  constructor(app, texture) {
     this.app = app;
-    this.sprite = new Graphics();
-    this.sprite.fill(0xff0000);
-    this.sprite.rect(0, 0, 100, 50);
-    this.sprite.fill();
+    this.sprite = new Sprite(texture);
+    this.sprite.width = 150;
+    this.sprite.height = 100;
     this.sprite.x = app.view.width / 2 - 50;
     this.sprite.y = 50;
     this.hp = 4;
