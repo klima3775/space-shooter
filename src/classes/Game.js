@@ -6,7 +6,7 @@ import { StarBackground } from "./StarBackground.js";
 import { Boss } from "./Boss.js";
 import { ShatterEffect } from "./ShatterEffect.js";
 export class Game {
-  constructor(app, textures) {
+  constructor(app, textures, sound) {
     this.app = app;
     this.textures = textures;
     this.player = new Player(app, this, textures.player);
