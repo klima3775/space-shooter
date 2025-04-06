@@ -22,4 +22,11 @@ document.getElementById("startButton").addEventListener("click", async () => {
   const textures = await Assets.loadBundle("gameAssets");
 
   const game = new Game(app, textures);
+
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "p") {
+      // Нажатие клавиши "P" для паузы
+      game.togglePause(); // Вызов метода togglePause из класса Game
+    }
+  });
 });

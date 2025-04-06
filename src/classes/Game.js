@@ -16,6 +16,15 @@ export class Game {
     this.maxBullets = 10;
     this.bulletCount = 0;
     this.gameOver = false;
+    this.paused = false;
+    this.pauseText = new Text("PAUSED", {
+      fontSize: 50,
+      fill: 0xffffff,
+      align: "center",
+    });
+    this.pauseText.x = this.app.view.width / 2 - this.pauseText.width / 2;
+    this.pauseText.y = this.app.view.height / 2 - this.pauseText.height / 2;
+    this.pauseText.visible = false; // Скрываем текст паузы
     this.starBackground = new StarBackground(app);
     this.timer = 60;
     this.timerText = new Text(`Time: ${this.timer}`, {
@@ -33,6 +42,8 @@ export class Game {
 
     this.app.stage.addChild(this.timerText);
     this.app.stage.addChild(this.bulletText);
+    this.app.stage.addChild(this.pauseText); // Добавляем текст паузы на сцену
+
     this.init();
   }
 
@@ -59,7 +70,7 @@ export class Game {
   }
 
   shoot() {
-    if (this.gameOver) return;
+    if (this.gameOver || this.paused) return;
 
     if (this.bulletCount <= this.maxBullets) {
       const bullet = new Bullet(
@@ -192,8 +203,13 @@ export class Game {
     }
   }
 
+  togglePause() {
+    this.paused = !this.paused;
+    this.pauseText.visible = this.paused; // Показываем или скрываем текст паузы
+  }
+
   update() {
-    if (this.gameOver) return;
+    if (this.gameOver || this.paused) return;
 
     this.bullets.forEach((bullet) => bullet.update());
     this.checkCollisions();
@@ -256,7 +272,7 @@ export class Game {
     }
 
     this.timerInterval = setInterval(() => {
-      if (this.gameOver) {
+      if (this.gameOver || this.paused) {
         clearInterval(this.timerInterval);
         return;
       }

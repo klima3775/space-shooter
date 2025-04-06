@@ -22,6 +22,8 @@ export class Player {
   }
 
   onKeyDown(event) {
+    if (this.game.paused) return;
+
     if (event.key === "ArrowLeft") {
       this.moveLeft();
     } else if (event.key === "ArrowRight") {
@@ -32,6 +34,8 @@ export class Player {
   }
 
   onKeyUp(event) {
+    if (this.game.paused) return;
+
     if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
       this.stop();
     }
