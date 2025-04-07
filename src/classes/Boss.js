@@ -25,12 +25,11 @@ export class Boss {
     console.log("Boss init: starting shooting interval");
 
     this.shootingInterval = setInterval(() => {
-      if (this.app.gameOver) {
-        console.log("Clearing boss interval due to game over");
+      if (this.app.gameOver || this.app.paused) {
         clearInterval(this.shootingInterval); // Очистка интервала
         return;
       }
-      console.log("Boss shooting");
+
       this.shoot();
     }, 2000);
   }
@@ -44,6 +43,8 @@ export class Boss {
   }
 
   shoot() {
+    if (this.app.paused) return;
+
     const bullet = new Bullet(
       this.app,
       this.sprite.x + 50,
@@ -57,6 +58,8 @@ export class Boss {
   }
 
   move() {
+    if (this.app.paused) return;
+
     this.sprite.x += this.speed * this.movingDirection;
 
     if (this.sprite.x <= 0 || this.sprite.x + 100 >= this.app.view.width) {
@@ -78,6 +81,8 @@ export class Boss {
   }
 
   update() {
+    if (this.app.paused) return;
+
     this.move();
 
     this.bullets.forEach((bullet, index) => {

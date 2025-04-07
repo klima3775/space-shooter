@@ -206,10 +206,14 @@ export class Game {
   togglePause() {
     this.paused = !this.paused;
     this.pauseText.visible = this.paused; // Показываем или скрываем текст паузы
+
+    if (!this.paused) {
+      this.startTimer(); // Запускаем таймер, если игра не на паузе
+    }
   }
 
   update() {
-    if (this.gameOver || this.paused) return;
+    if (this.gameOver) return;
 
     this.bullets.forEach((bullet) => bullet.update());
     this.checkCollisions();
