@@ -51,6 +51,8 @@ export class StarBackground {
   }
 
   update(time) {
+    if (this.app.paused) return; // Остановить фон при паузе
+
     this.cameraZ += time.deltaTime * 10 * this.baseSpeed;
     for (const star of this.stars) {
       if (star.z < this.cameraZ) this.randomizeStar(star);

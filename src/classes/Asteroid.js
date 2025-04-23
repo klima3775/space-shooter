@@ -10,4 +10,10 @@ export class Asteroid {
     this.sprite.y = y;
     this.app.stage.addChild(this.sprite);
   }
+
+  // Заглушка для будущего движения
+  update() {
+    if (this.app.paused) return;
+    // Добавить логику движения здесь, если нужно (например, дрейф вниз)
+  }
 }

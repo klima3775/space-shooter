@@ -54,6 +54,11 @@ export class Player {
   }
 
   update() {
+    if (this.game.paused) {
+      requestAnimationFrame(this.update);
+      return;
+    }
+
     if (this.direction === -1 && this.sprite.x > 0) {
       this.sprite.x -= this.speed;
     } else if (

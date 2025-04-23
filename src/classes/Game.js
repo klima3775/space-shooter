@@ -1,10 +1,11 @@
-import { Text } from "pixi.js";
+import { Text, Container, Graphics } from "pixi.js";
 import { Player } from "./Player.js";
 import { Bullet } from "./Bullet.js";
 import { Asteroid } from "./Asteroid.js";
 import { StarBackground } from "./StarBackground.js";
 import { Boss } from "./Boss.js";
 import { ShatterEffect } from "./ShatterEffect.js";
+
 export class Game {
   constructor(app, textures, sound) {
     this.app = app;
@@ -17,14 +18,68 @@ export class Game {
     this.bulletCount = 0;
     this.gameOver = false;
     this.paused = false;
-    this.pauseText = new Text("PAUSED", {
+
+    // UI для паузы
+    this.pauseMenu = new Container();
+    this.pauseMenu.visible = false;
+    this.app.stage.addChild(this.pauseMenu);
+
+    // Полупрозрачный фон паузы
+    const pauseBackground = new Graphics();
+    pauseBackground.fill(0x000000, 0.7);
+    pauseBackground.rect(0, 0, this.app.view.width, this.app.view.height);
+    pauseBackground.fill();
+    this.pauseMenu.addChild(pauseBackground);
+
+    // Текст "PAUSED"
+    const pauseTitle = new Text("PAUSED", {
       fontSize: 50,
       fill: 0xffffff,
       align: "center",
     });
-    this.pauseText.x = this.app.view.width / 2 - this.pauseText.width / 2;
-    this.pauseText.y = this.app.view.height / 2 - this.pauseText.height / 2;
-    this.pauseText.visible = false; // Скрываем текст паузы
+    pauseTitle.x = this.app.view.width / 2 - pauseTitle.width / 2;
+    pauseTitle.y = this.app.view.height / 2 - 100;
+    this.pauseMenu.addChild(pauseTitle);
+
+    // Кнопка "Resume"
+    const resumeText = new Text("Resume", {
+      fontSize: 30,
+      fill: 0xffffff,
+      align: "center",
+    });
+    resumeText.x = this.app.view.width / 2 - resumeText.width / 2;
+    resumeText.y = this.app.view.height / 2;
+    resumeText.interactive = true;
+    resumeText.buttonMode = true;
+    resumeText.on("pointerdown", () => this.togglePause());
+    this.pauseMenu.addChild(resumeText);
+
+    // Кнопка "Restart"
+    const restartText = new Text("Restart", {
+      fontSize: 30,
+      fill: 0xffffff,
+      align: "center",
+    });
+    restartText.x = this.app.view.width / 2 - restartText.width / 2;
+    restartText.y = this.app.view.height / 2 + 50;
+    restartText.interactive = true;
+    restartText.buttonMode = true;
+    restartText.on("pointerdown", () => this.restartGame());
+    this.pauseMenu.addChild(restartText);
+
+    // Кнопка "Main Menu" (заглушка для будущего главного меню)
+    const mainMenuText = new Text("Main Menu", {
+      fontSize: 30,
+      fill: 0xffffff,
+      align: "center",
+    });
+    mainMenuText.x = this.app.view.width / 2 - mainMenuText.width / 2;
+    mainMenuText.y = this.app.view.height / 2 + 100;
+    mainMenuText.interactive = true;
+    mainMenuText.buttonMode = true;
+    mainMenuText.on("pointerdown", () => this.goToMainMenu());
+    this.pauseMenu.addChild(mainMenuText);
+
     this.starBackground = new StarBackground(app);
     this.timer = 60;
     this.timerText = new Text(`Time: ${this.timer}`, {
@@ -42,7 +97,6 @@ export class Game {
 
     this.app.stage.addChild(this.timerText);
     this.app.stage.addChild(this.bulletText);
-    this.app.stage.addChild(this.pauseText); // Добавляем текст паузы на сцену
 
     this.init();
   }
@@ -82,13 +136,11 @@ export class Game {
       this.bullets.push(bullet);
       this.bulletCount++;
 
-      // update bullet text
       this.bulletText.text = `Bullets: ${Math.max(
         this.maxBullets - this.bulletCount,
         0
       )}`;
 
-      // warning when last bullet is shot
       if (this.bulletCount === this.maxBullets) {
         const warningText = new Text("Last bullet!", {
           fontSize: 20,
@@ -99,14 +151,12 @@ export class Game {
 
         this.app.stage.addChild(warningText);
 
-        // reset warning text after 1 second
         setTimeout(() => {
           this.app.stage.removeChild(warningText);
         }, 1000);
       }
     }
 
-    // check if player has no bullets left and no asteroids left
     if (
       this.bulletCount > this.maxBullets &&
       (this.bullets.length === 0 || this.asteroids.length > 0 || this.boss)
@@ -125,7 +175,8 @@ export class Game {
   }
 
   checkCollisions() {
-    // check for collisions between player bullets and asteroids
+    if (this.paused) return;
+
     this.bullets.forEach((bullet, bulletIndex) => {
       const bulletBounds = bullet.sprite.getBounds();
 
@@ -140,21 +191,15 @@ export class Game {
         }
       });
 
-      // check for collisions between player bullets and boss
       if (this.boss) {
         const bossBounds = this.boss.sprite.getBounds();
 
         if (this.isIntersecting(bulletBounds, bossBounds)) {
-          // Remove player bullet
           this.app.stage.removeChild(bullet.sprite);
           this.bullets.splice(bulletIndex, 1);
 
-          // Deal damage to boss
           if (this.boss.takeDamage()) {
-            // animate boss death
             this.shatterEffect.create(this.boss.sprite);
-
-            // remove boss and all boss bullets
             this.app.stage.removeChild(this.boss.sprite);
             this.app.stage.removeChild(this.boss.healthBar);
             this.boss.bullets.forEach((bossBullet) => {
@@ -167,13 +212,11 @@ export class Game {
         }
       }
 
-      // check for collisions between player bullets and boss bullets
       if (this.boss) {
         this.boss.bullets.forEach((bossBullet, bossBulletIndex) => {
           const bossBulletBounds = bossBullet.sprite.getBounds();
 
           if (this.isIntersecting(bulletBounds, bossBulletBounds)) {
-            // Remove both bullets
             this.app.stage.removeChild(bullet.sprite);
             this.app.stage.removeChild(bossBullet.sprite);
             this.bullets.splice(bulletIndex, 1);
@@ -183,7 +226,6 @@ export class Game {
       }
     });
 
-    // check for collisions between boss bullets and player
     if (this.boss) {
       this.boss.bullets.forEach((bullet, bulletIndex) => {
         const bulletBounds = bullet.sprite.getBounds();
@@ -194,9 +236,7 @@ export class Game {
           this.boss.bullets.splice(bulletIndex, 1);
 
           this.shatterEffect.create(this.player.sprite, 0xffffff);
-
           this.app.stage.removeChild(this.player.sprite);
-
           this.endGame("YOU LOSE");
         }
       });
@@ -205,15 +245,63 @@ export class Game {
 
   togglePause() {
     this.paused = !this.paused;
-    this.pauseText.visible = this.paused; // Показываем или скрываем текст паузы
+    this.pauseMenu.visible = this.paused;
 
-    if (!this.paused) {
-      this.startTimer(); // Запускаем таймер, если игра не на паузе
+    if (this.paused) {
+      this.app.ticker.stop(); // Остановить тикер PixiJS
+      clearInterval(this.timerInterval); // Остановить таймер
+    } else {
+      this.app.ticker.start(); // Возобновить тикер
+      this.startTimer(); // Возобновить таймер
     }
   }
 
+  restartGame() {
+    this.paused = false;
+    this.gameOver = false;
+    this.pauseMenu.visible = false;
+    this.app.ticker.start();
+
+    // Очистить пули
+    this.bullets.forEach((bullet) => this.app.stage.removeChild(bullet.sprite));
+    this.bullets = [];
+
+    // Очистить астероиды
+    this.asteroids.forEach((asteroid) =>
+      this.app.stage.removeChild(asteroid.sprite)
+    );
+    this.asteroids = [];
+
+    // Очистить босса
+    if (this.boss) {
+      this.app.stage.removeChild(this.boss.sprite);
+      this.app.stage.removeChild(this.boss.healthBar);
+      this.boss.bullets.forEach((bossBullet) => {
+        this.app.stage.removeChild(bossBullet.sprite);
+      });
+      this.boss.bullets = [];
+      clearInterval(this.boss.shootingInterval);
+      this.boss = null;
+    }
+
+    // Сбросить счётчики
+    this.bulletCount = 0;
+    this.maxBullets = 10;
+    this.bulletText.text = `Bullets: ${this.maxBullets}`;
+    this.resetTimer();
+
+    // Создать новые астероиды
+    this.createAsteroids();
+  }
+
+  goToMainMenu() {
+    // Заглушка для перехода в главное меню (реализуется позже)
+    console.log("Переход в главное меню (реализуется позже)");
+    this.restartGame(); // Временно рестартим игру
+  }
+
   update() {
-    if (this.gameOver) return;
+    if (this.gameOver || this.paused) return;
 
     this.bullets.forEach((bullet) => bullet.update());
     this.checkCollisions();
@@ -230,9 +318,7 @@ export class Game {
           });
           this.bullets = [];
 
-          // update bullet text
           this.bulletText.text = `Bullets: ${this.maxBullets}`;
-
           this.resetTimer();
         }
       } else {
@@ -244,7 +330,6 @@ export class Game {
   endGame(message) {
     this.gameOver = true;
 
-    // stop boss shooting interval
     if (this.boss) {
       clearInterval(this.boss.shootingInterval);
     }
@@ -261,10 +346,9 @@ export class Game {
     this.app.stage.addChild(text);
   }
 
-  // timer and game loop
   startGameLoop() {
     this.app.ticker.add(() => {
-      if (!this.gameOver) {
+      if (!this.gameOver && !this.paused) {
         this.update();
       }
     });

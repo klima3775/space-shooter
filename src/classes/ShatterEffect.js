@@ -25,7 +25,6 @@ export class ShatterEffect {
       fragment.x = target.x + Math.random() * target.width;
       fragment.y = target.y + Math.random() * target.height;
 
-      // random velocity
       fragment.vx = (Math.random() - 0.5) * 10;
       fragment.vy = (Math.random() - 0.5) * 10;
 
@@ -34,6 +33,8 @@ export class ShatterEffect {
     }
 
     const animation = () => {
+      if (this.app.paused) return; // Пропустить анимацию во время паузы
+
       fragments.forEach((fragment, index) => {
         fragment.x += fragment.vx;
         fragment.y += fragment.vy;

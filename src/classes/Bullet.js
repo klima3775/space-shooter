@@ -1,20 +1,25 @@
 import { Graphics } from "pixi.js";
 
 export class Bullet {
-  constructor(app, x, y, direction = -1, speed = 11, color = 0xffffff) {
+  constructor(app, x, y, direction, speed = 5, color = 0xffff00) {
     this.app = app;
     this.sprite = new Graphics();
     this.sprite.fill(color);
-    this.sprite.circle(0, 0, 10);
+    this.sprite.rect(0, 0, 5, 10);
     this.sprite.fill();
     this.sprite.x = x;
     this.sprite.y = y;
-    this.app.stage.addChild(this.sprite);
-    this.speed = speed;
     this.direction = direction;
+    this.speed = speed;
+    this.app.stage.addChild(this.sprite);
   }
 
   update() {
-    this.sprite.y += this.speed * this.direction;
+    if (this.app.paused) return;
+
+    this.sprite.y += this.direction * this.speed;
+    if (this.sprite.y < 0 || this.sprite.y > this.app.view.height) {
+      this.app.stage.removeChild(this.sprite);
+    }
   }
 }
