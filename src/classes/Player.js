@@ -13,12 +13,19 @@ export class Player {
     this.app.stage.addChild(this.sprite);
     this.speed = 8;
     this.direction = 0;
+    this.animationFrameId = null; // Для хранения ID анимационного цикла
 
+    // Привязываем методы
+    this.onKeyDown = this.onKeyDown.bind(this);
+    this.onKeyUp = this.onKeyUp.bind(this);
     this.update = this.update.bind(this);
-    requestAnimationFrame(this.update);
 
-    window.addEventListener("keydown", this.onKeyDown.bind(this));
-    window.addEventListener("keyup", this.onKeyUp.bind(this));
+    // Добавляем слушатели событий
+    window.addEventListener("keydown", this.onKeyDown);
+    window.addEventListener("keyup", this.onKeyUp);
+
+    // Запускаем анимационный цикл
+    this.animationFrameId = requestAnimationFrame(this.update);
   }
 
   onKeyDown(event) {
@@ -55,7 +62,7 @@ export class Player {
 
   update() {
     if (this.game.paused) {
-      requestAnimationFrame(this.update);
+      this.animationFrameId = requestAnimationFrame(this.update);
       return;
     }
 
@@ -67,6 +74,21 @@ export class Player {
     ) {
       this.sprite.x += this.speed;
     }
-    requestAnimationFrame(this.update);
+    this.animationFrameId = requestAnimationFrame(this.update);
+  }
+
+  destroy() {
+    // Удаляем слушатели событий
+    window.removeEventListener("keydown", this.onKeyDown);
+    window.removeEventListener("keyup", this.onKeyUp);
+
+    // Останавливаем анимационный цикл
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+
+    // Удаляем спрайт
+    this.app.stage.removeChild(this.sprite);
   }
 }

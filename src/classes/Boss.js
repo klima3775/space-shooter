@@ -16,17 +16,22 @@ export class Boss {
     this.speed = 6;
     this.app.stage.addChild(this.sprite);
     this.app.stage.addChild(this.hpBar);
+    this.shootingInterval = null;
     this.init();
   }
 
   init() {
     this.updateHpBar();
 
+    if (this.shootingInterval) {
+      clearInterval(this.shootingInterval);
+    }
+
     console.log("Boss init: starting shooting interval");
 
     this.shootingInterval = setInterval(() => {
       if (this.app.gameOver || this.app.paused) {
-        clearInterval(this.shootingInterval); // Очистка интервала
+        clearInterval(this.shootingInterval);
         return;
       }
 
@@ -49,8 +54,8 @@ export class Boss {
       this.app,
       this.sprite.x + 50,
       this.sprite.y + 50,
-      1, // direction
-      5, // speed
+      1,
+      5,
       0xff0000
     );
     this.bullets.push(bullet);
@@ -71,6 +76,7 @@ export class Boss {
 
   takeDamage() {
     this.hp--;
+    this.updateHpBar();
 
     if (this.hp <= 0) {
       this.destroy();
@@ -97,7 +103,10 @@ export class Boss {
 
   destroy() {
     console.log("Boss destroyed");
-    clearInterval(this.shootingInterval); // Удаляем интервал
+    if (this.shootingInterval) {
+      clearInterval(this.shootingInterval);
+      this.shootingInterval = null;
+    }
     this.app.stage.removeChild(this.sprite);
     this.app.stage.removeChild(this.hpBar);
     this.bullets.forEach((bullet) => this.app.stage.removeChild(bullet.sprite));

@@ -18,6 +18,8 @@ export class Game {
     this.bulletCount = 0;
     this.gameOver = false;
     this.paused = false;
+    this.boss = null;
+    this.shootCooldown = false; // Добавляем флаг для предотвращения множественных выстрелов
 
     // UI для паузы
     this.pauseMenu = new Container();
@@ -124,9 +126,9 @@ export class Game {
   }
 
   shoot() {
-    if (this.gameOver || this.paused) return;
+    if (this.gameOver || this.paused || this.shootCooldown) return;
 
-    if (this.bulletCount <= this.maxBullets) {
+    if (this.bulletCount < this.maxBullets) {
       const bullet = new Bullet(
         this.app,
         this.player.sprite.x + 55,
@@ -136,10 +138,13 @@ export class Game {
       this.bullets.push(bullet);
       this.bulletCount++;
 
-      this.bulletText.text = `Bullets: ${Math.max(
-        this.maxBullets - this.bulletCount,
-        0
-      )}`;
+      this.bulletText.text = `Bullets: ${this.maxBullets - this.bulletCount}`;
+
+      // Устанавливаем задержку для предотвращения множественных выстрелов
+      this.shootCooldown = true;
+      setTimeout(() => {
+        this.shootCooldown = false;
+      }, 200); // Задержка 200 мс
 
       if (this.bulletCount === this.maxBullets) {
         const warningText = new Text("Last bullet!", {
@@ -155,11 +160,10 @@ export class Game {
           this.app.stage.removeChild(warningText);
         }, 1000);
       }
-    }
-
-    if (
-      this.bulletCount > this.maxBullets &&
-      (this.bullets.length === 0 || this.asteroids.length > 0 || this.boss)
+    } else if (
+      this.bulletCount >= this.maxBullets &&
+      this.bullets.length === 0 &&
+      (this.asteroids.length > 0 || this.boss)
     ) {
       this.endGame("YOU LOSE");
     }
@@ -252,6 +256,7 @@ export class Game {
     this.paused = false;
     this.gameOver = false;
     this.pauseMenu.visible = false;
+    this.shootCooldown = false; // Сбрасываем задержку выстрелов
     this.app.ticker.start();
 
     // Очистить пули
@@ -271,8 +276,8 @@ export class Game {
       this.boss.bullets.forEach((bossBullet) => {
         this.app.stage.removeChild(bossBullet.sprite);
       });
-      this.boss.bullets = [];
       clearInterval(this.boss.shootingInterval);
+      this.boss.destroy();
       this.boss = null;
     }
 
@@ -280,16 +285,23 @@ export class Game {
     this.bulletCount = 0;
     this.maxBullets = 10;
     this.bulletText.text = `Bullets: ${this.maxBullets}`;
-    this.resetTimer();
+
+    // Уничтожить старого игрока и создать нового
+    this.player.destroy(); // Вызываем метод destroy для очистки
+    this.app.stage.removeChild(this.player.sprite);
+    this.player = new Player(this.app, this, this.textures.player);
+    this.app.stage.addChild(this.player.sprite);
 
     // Создать новые астероиды
     this.createAsteroids();
+
+    // Сбросить таймер
+    this.resetTimer();
   }
 
   goToMainMenu() {
-    // Заглушка для перехода в главное меню (реализуется позже)
     console.log("Переход в главное меню (реализуется позже)");
-    this.restartGame(); // Временно рестартим игру
+    this.restartGame();
   }
 
   update() {
