@@ -246,14 +246,6 @@ export class Game {
   togglePause() {
     this.paused = !this.paused;
     this.pauseMenu.visible = this.paused;
-
-    if (this.paused) {
-      this.app.ticker.stop(); // Остановить тикер PixiJS
-      clearInterval(this.timerInterval); // Остановить таймер
-    } else {
-      this.app.ticker.start(); // Возобновить тикер
-      this.startTimer(); // Возобновить таймер
-    }
   }
 
   restartGame() {
