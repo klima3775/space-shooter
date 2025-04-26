@@ -199,8 +199,10 @@ export class Game {
     this.paused = !this.paused;
     if (this.paused) {
       this.pauseMenu.show();
+      clearInterval(this.timerInterval); // Останавливаем таймер
     } else {
       this.pauseMenu.hide();
+      this.startTimer(); // Перезапускаем таймер после снятия паузы
     }
   }
 
