@@ -226,7 +226,7 @@ export class Game {
     // Очистить босса
     if (this.boss) {
       this.app.stage.removeChild(this.boss.sprite);
-      this.app.stage.removeChild(this.boss.healthBar);
+      this.app.stage.removeChild(this.boss.hpBar);
       this.boss.bullets.forEach((bossBullet) => {
         this.app.stage.removeChild(bossBullet.sprite);
       });
