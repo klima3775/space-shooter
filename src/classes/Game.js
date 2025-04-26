@@ -5,6 +5,7 @@ import { Asteroid } from "./Asteroid.js";
 import { StarBackground } from "./StarBackground.js";
 import { Boss } from "./Boss.js";
 import { ShatterEffect } from "./ShatterEffect.js";
+import { PauseMenu } from "./PauseMenu.js";
 
 export class Game {
   constructor(app, textures, sound) {
@@ -21,53 +22,11 @@ export class Game {
     this.boss = null;
     this.shootCooldown = false; // Добавляем флаг для предотвращения множественных выстрелов
 
-    // UI для паузы
-    this.pauseMenu = new Container();
-    this.pauseMenu.visible = false;
-    this.app.stage.addChild(this.pauseMenu);
-
-    // Полупрозрачный фон паузы
-    const pauseBackground = new Graphics();
-    pauseBackground.fill(0x000000, 0.7);
-    pauseBackground.rect(0, 0, this.app.view.width, this.app.view.height);
-    pauseBackground.fill();
-    this.pauseMenu.addChild(pauseBackground);
-
-    // Текст "PAUSED"
-    const pauseTitle = new Text("PAUSED", {
-      fontSize: 50,
-      fill: 0xffffff,
-      align: "center",
-    });
-    pauseTitle.x = this.app.view.width / 2 - pauseTitle.width / 2;
-    pauseTitle.y = this.app.view.height / 2 - 100;
-    this.pauseMenu.addChild(pauseTitle);
-
-    // Кнопка "Resume"
-    const resumeText = new Text("Resume", {
-      fontSize: 30,
-      fill: 0xffffff,
-      align: "center",
-    });
-    resumeText.x = this.app.view.width / 2 - resumeText.width / 2;
-    resumeText.y = this.app.view.height / 2;
-    resumeText.interactive = true;
-    resumeText.buttonMode = true;
-    resumeText.on("pointerdown", () => this.togglePause());
-    this.pauseMenu.addChild(resumeText);
-
-    // Кнопка "Restart"
-    const restartText = new Text("Restart", {
-      fontSize: 30,
-      fill: 0xffffff,
-      align: "center",
-    });
-    restartText.x = this.app.view.width / 2 - restartText.width / 2;
-    restartText.y = this.app.view.height / 2 + 50;
-    restartText.interactive = true;
-    restartText.buttonMode = true;
-    restartText.on("pointerdown", () => this.restartGame());
-    this.pauseMenu.addChild(restartText);
+    this.pauseMenu = new PauseMenu(
+      this.app,
+      () => this.togglePause(), // Функция для кнопки "Resume"
+      () => this.restartGame() // Функция для кнопки "Restart"
+    );
 
     this.starBackground = new StarBackground(app);
     this.timer = 60;
@@ -238,13 +197,17 @@ export class Game {
 
   togglePause() {
     this.paused = !this.paused;
-    this.pauseMenu.visible = this.paused;
+    if (this.paused) {
+      this.pauseMenu.show();
+    } else {
+      this.pauseMenu.hide();
+    }
   }
 
   restartGame() {
     this.paused = false;
     this.gameOver = false;
-    this.pauseMenu.visible = false;
+    this.pauseMenu.hide(); // Скрываем меню паузы
     this.shootCooldown = false; // Сбрасываем задержку выстрелов
     this.app.ticker.start();
 
@@ -266,7 +229,6 @@ export class Game {
         this.app.stage.removeChild(bossBullet.sprite);
       });
       clearInterval(this.boss.shootingInterval);
-      this.boss.destroy();
       this.boss = null;
     }
 
@@ -287,12 +249,6 @@ export class Game {
     // Сбросить таймер
     this.resetTimer();
   }
-
-  goToMainMenu() {
-    console.log("Переход в главное меню (реализуется позже)");
-    this.restartGame();
-  }
-
   update() {
     if (this.gameOver || this.paused) return;
 
