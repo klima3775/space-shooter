@@ -69,19 +69,6 @@ export class Game {
     restartText.on("pointerdown", () => this.restartGame());
     this.pauseMenu.addChild(restartText);
 
-    // Кнопка "Main Menu" (заглушка для будущего главного меню)
-    const mainMenuText = new Text("Main Menu", {
-      fontSize: 30,
-      fill: 0xffffff,
-      align: "center",
-    });
-    mainMenuText.x = this.app.view.width / 2 - mainMenuText.width / 2;
-    mainMenuText.y = this.app.view.height / 2 + 100;
-    mainMenuText.interactive = true;
-    mainMenuText.buttonMode = true;
-    mainMenuText.on("pointerdown", () => this.goToMainMenu());
-    this.pauseMenu.addChild(mainMenuText);
-
     this.starBackground = new StarBackground(app);
     this.timer = 60;
     this.timerText = new Text(`Time: ${this.timer}`, {
@@ -126,9 +113,9 @@ export class Game {
   }
 
   shoot() {
-    if (this.gameOver || this.paused || this.shootCooldown) return;
+    if (this.gameOver) return;
 
-    if (this.bulletCount < this.maxBullets) {
+    if (this.bulletCount <= this.maxBullets) {
       const bullet = new Bullet(
         this.app,
         this.player.sprite.x + 55,
@@ -138,14 +125,13 @@ export class Game {
       this.bullets.push(bullet);
       this.bulletCount++;
 
-      this.bulletText.text = `Bullets: ${this.maxBullets - this.bulletCount}`;
+      // update bullet text
+      this.bulletText.text = `Bullets: ${Math.max(
+        this.maxBullets - this.bulletCount,
+        0
+      )}`;
 
-      // Устанавливаем задержку для предотвращения множественных выстрелов
-      this.shootCooldown = true;
-      setTimeout(() => {
-        this.shootCooldown = false;
-      }, 200); // Задержка 200 мс
-
+      // warning when last bullet is shot
       if (this.bulletCount === this.maxBullets) {
         const warningText = new Text("Last bullet!", {
           fontSize: 20,
@@ -156,14 +142,17 @@ export class Game {
 
         this.app.stage.addChild(warningText);
 
+        // reset warning text after 1 second
         setTimeout(() => {
           this.app.stage.removeChild(warningText);
         }, 1000);
       }
-    } else if (
-      this.bulletCount >= this.maxBullets &&
-      this.bullets.length === 0 &&
-      (this.asteroids.length > 0 || this.boss)
+    }
+
+    // check if player has no bullets left and no asteroids left
+    if (
+      this.bulletCount > this.maxBullets &&
+      (this.bullets.length === 0 || this.asteroids.length > 0 || this.boss)
     ) {
       this.endGame("YOU LOSE");
     }
