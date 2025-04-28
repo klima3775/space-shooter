@@ -6,6 +6,7 @@ import { StarBackground } from "./StarBackground.js";
 import { Boss } from "./Boss.js";
 import { ShatterEffect } from "./ShatterEffect.js";
 import { PauseMenu } from "./PauseMenu.js";
+import { RestartButton } from "./RestartButton.js";
 
 export class Game {
   constructor(app, textures, sound) {
@@ -25,6 +26,7 @@ export class Game {
       () => this.togglePause(), // Функция для кнопки "Resume"
       () => this.restartGame() // Функция для кнопки "Restart"
     );
+    this.restartButton = null; // Initialize restartButton as null
 
     this.starBackground = new StarBackground(app);
     this.timer = 60;
@@ -235,6 +237,12 @@ export class Game {
       this.boss = null;
     }
 
+    // Очистить кнопку рестарта, если она существует
+    if (this.restartButton) {
+      this.restartButton.destroy();
+      this.restartButton = null;
+    }
+
     // Сбросить счётчики
     this.bulletCount = 0;
     this.maxBullets = 10;
@@ -251,7 +259,18 @@ export class Game {
 
     // Сбросить таймер
     this.resetTimer();
+
+    // Удалить текст " YOU WIN" или "YOU LOSE"
+    this.app.stage.children.forEach((child) => {
+      if (
+        child instanceof Text &&
+        (child.text === "YOU WIN" || child.text === "YOU LOSE")
+      ) {
+        this.app.stage.removeChild(child);
+      }
+    });
   }
+
   update() {
     if (this.gameOver || this.paused) return;
 
@@ -296,6 +315,14 @@ export class Game {
     text.y = this.app.view.height / 2 - text.height / 2;
 
     this.app.stage.addChild(text);
+
+    // Create RestartButton below the game over/win message
+    this.restartButton = new RestartButton(
+      this.app,
+      () => this.restartGame(),
+      null, // Use default x (centered)
+      this.app.view.height / 2 + 50 // Position below the message
+    );
   }
 
   startGameLoop() {
