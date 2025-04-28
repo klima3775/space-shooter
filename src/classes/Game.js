@@ -20,8 +20,6 @@ export class Game {
     this.gameOver = false;
     this.paused = false;
     this.boss = null;
-    this.shootCooldown = false; // Добавляем флаг для предотвращения множественных выстрелов
-
     this.pauseMenu = new PauseMenu(
       this.app,
       () => this.togglePause(), // Функция для кнопки "Resume"
@@ -46,6 +44,7 @@ export class Game {
     this.app.stage.addChild(this.timerText);
     this.app.stage.addChild(this.bulletText);
 
+    this.app.stage.addChild(this.pauseMenu.container);
     this.init();
   }
 
@@ -196,6 +195,8 @@ export class Game {
   }
 
   togglePause() {
+    if (this.gameOver) return;
+
     this.paused = !this.paused;
     if (this.paused) {
       this.pauseMenu.show();
