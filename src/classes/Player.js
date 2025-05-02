@@ -70,7 +70,7 @@ export class Player {
       this.sprite.x -= this.speed;
     } else if (
       this.direction === 1 &&
-      this.sprite.x < this.app.view.width - 50
+      this.sprite.x < this.app.view.width - 100
     ) {
       this.sprite.x += this.speed;
     }

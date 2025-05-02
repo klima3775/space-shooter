@@ -23,8 +23,8 @@ export class Game {
     this.boss = null;
     this.pauseMenu = new PauseMenu(
       this.app,
-      () => this.togglePause(), // Функция для кнопки "Resume"
-      () => this.restartGame() // Функция для кнопки "Restart"
+      () => this.togglePause(),
+      () => this.restartGame()
     );
     this.restartButton = null; // Initialize restartButton as null
 
@@ -275,6 +275,7 @@ export class Game {
     if (this.gameOver || this.paused) return;
 
     this.bullets.forEach((bullet) => bullet.update());
+    this.asteroids.forEach((asteroid) => asteroid.update());
     this.checkCollisions();
 
     if (this.asteroids.length === 0) {
