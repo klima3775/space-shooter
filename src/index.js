@@ -7,7 +7,7 @@ document.getElementById("startButton").addEventListener("click", async () => {
 
   const app = new Application();
 
-  await app.init({ width: 1280, height: 720 });
+  await app.init({ width: 1600, height: 900 });
 
   document.body.appendChild(app.canvas);
 
@@ -24,7 +24,7 @@ document.getElementById("startButton").addEventListener("click", async () => {
   const game = new Game(app, textures);
 
   window.addEventListener("keydown", (event) => {
-    if (event.key === "p") {
+    if (event.key === "p" || event.key === "з") {
       // Нажатие клавиши "P" для паузы
       game.togglePause(); // Вызов метода togglePause из класса Game
     }
