@@ -283,7 +283,9 @@ export class Game {
         if (!this.gameOver) {
           this.boss = new Boss(this.app, this.textures.boss);
           this.bulletCount = 0;
-          this.maxBullets = 10;
+          this.maxBullets = 35; // Increase bullets to 35 for boss level
+          this.timer = 120; // Set timer to 2 minutes for boss level
+          this.timerText.text = `Time: ${this.timer}`; // Update timer display
 
           this.bullets.forEach((bullet) => {
             this.app.stage.removeChild(bullet.sprite);
@@ -357,7 +359,7 @@ export class Game {
 
   resetTimer() {
     clearInterval(this.timerInterval);
-    this.timer = 60;
+    this.timer = this.boss ? 120 : 60; // Use 120 seconds for boss, 60 for asteroids
     this.timerText.text = `Time: ${this.timer}`;
     this.startTimer();
   }
