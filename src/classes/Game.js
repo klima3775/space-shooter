@@ -16,7 +16,7 @@ export class Game {
     this.shatterEffect = new ShatterEffect(app);
     this.bullets = [];
     this.asteroids = [];
-    this.maxBullets = 10;
+    this.maxBullets = 30;
     this.bulletCount = 0;
     this.gameOver = false;
     this.paused = false;
