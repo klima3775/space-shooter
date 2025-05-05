@@ -29,11 +29,13 @@ export class Asteroid {
       this.speedX *= -1; // Меняем направление
     }
 
+    // Ограничиваем минимальную и максимальную координату Y
+    const maxY = this.app.view.height - this.sprite.height - 160; // Ограничение по Y (например, на 100 пикселей выше нижнего края)
     if (this.sprite.y < 0) {
       this.sprite.y = 0;
       this.speedY *= -1; // Меняем направление
-    } else if (this.sprite.y > this.app.view.height - this.sprite.height) {
-      this.sprite.y = this.app.view.height - this.sprite.height;
+    } else if (this.sprite.y > maxY) {
+      this.sprite.y = maxY;
       this.speedY *= -1; // Меняем направление
     }
   }
