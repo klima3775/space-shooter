@@ -97,7 +97,7 @@ export class Game {
   shoot() {
     if (this.gameOver) return;
 
-    if (this.bulletCount < this.maxBullets) {
+    if (this.bulletCount <= this.maxBullets) {
       const bullet = new Bullet(
         this.app,
         this.player.sprite.x + 55,
@@ -106,31 +106,37 @@ export class Game {
       );
       this.bullets.push(bullet);
       this.bulletCount++;
-      this.bulletText.text = `Пули: ${Math.max(
+
+      // update bullet text
+      this.bulletText.text = `Bullets: ${Math.max(
         this.maxBullets - this.bulletCount,
         0
       )}`;
 
+      // warning when last bullet is shot
       if (this.bulletCount === this.maxBullets) {
-        const îlwarningText = new Text("Последняя пуля!", {
+        const warningText = new Text("Last bullet!", {
           fontSize: 20,
           fill: 0xff0000,
         });
         warningText.x = this.app.view.width / 2 - warningText.width / 2;
         warningText.y = this.app.view.height / 2 - warningText.height / 2;
+
         this.app.stage.addChild(warningText);
+
+        // reset warning text after 1 second
         setTimeout(() => {
           this.app.stage.removeChild(warningText);
         }, 1000);
       }
     }
 
+    // check if player has no bullets left and no asteroids left
     if (
-      this.bulletCount >= this.maxBullets &&
-      this.bullets.length === 0 &&
-      (this.asteroids.length > 0 || this.wallBlocks.length > 0 || this.boss)
+      this.bulletCount > this.maxBullets &&
+      (this.bullets.length === 0 || this.asteroids.length > 0 || this.boss)
     ) {
-      this.endGame("ТЫ ПРОИГРАЛ");
+      this.endGame("YOU LOSE");
     }
   }
 
