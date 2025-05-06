@@ -30,13 +30,15 @@ export class Boss {
       clearInterval(this.shootingInterval);
     }
 
-    console.log("Boss init: starting shooting interval");
+    console.log("Boss init: starting shooting interval, phase:", this.phase);
 
     this.shootingInterval = setInterval(() => {
       if (this.app.gameOver || this.app.paused) {
         clearInterval(this.shootingInterval);
         return;
       }
+
+      console.log("Boss shooting, phase:", this.phase, "hp:", this.hp);
 
       if (this.phase === 1) {
         this.shoot();
@@ -50,9 +52,10 @@ export class Boss {
 
   updateHpBar() {
     this.hpBar.clear();
-    this.hpBar.fill({ color: 0x00ff00 });
+    this.hpBar.beginFill(0x00ff00); // Зеленая полоса здоровья
     const barWidth = (this.hp / 12) * 150;
-    this.hpBar.rect(this.sprite.x, this.sprite.y - 10, barWidth, 5);
+    this.hpBar.drawRect(this.sprite.x, this.sprite.y - 10, barWidth, 5);
+    this.hpBar.endFill();
   }
 
   shoot() {
@@ -110,10 +113,10 @@ export class Boss {
           this.sprite.x + this.sprite.width / 2 + dir * 20,
           this.sprite.y + this.sprite.height,
           1,
-          6, // Увеличим скорость пуль для большей угрозы
-          0xff00ff // Фиолетовые пули для третьей фазы
+          6, // Увеличенная скорость
+          0xff00ff // Фиолетовые пули
         );
-        bullet.speedX = dir * 3; // Небольшой горизонтальный разброс
+        bullet.speedX = dir * 3; // Горизонтальный разброс
         this.bullets.push(bullet);
         this.app.stage.addChild(bullet.sprite);
       });
@@ -121,7 +124,7 @@ export class Boss {
       burstCount++;
       if (burstCount >= maxBursts) {
         clearInterval(this.burstInterval);
-        this.isBursting = false; // Завершаем залп, начинается перезарядка
+        this.isBursting = false;
       }
     }, 300); // Интервал между выстрелами в залпе
   }
@@ -145,13 +148,15 @@ export class Boss {
     this.hp--;
     this.updateHpBar();
 
+    console.log("Boss took damage, hp:", this.hp, "phase:", this.phase);
+
     if (this.hp <= 8 && this.phase === 1) {
       this.phase = 2;
-      this.speed = 5; // Увеличиваем скорость на второй фазе
+      this.speed = 5;
       console.log("Boss entered Phase 2! Speed increased to", this.speed);
     } else if (this.hp <= 4 && this.phase === 2) {
       this.phase = 3;
-      this.speed = 6; // Увеличиваем скорость на третьей фазе
+      this.speed = 6;
       console.log("Boss entered Phase 3! Speed increased to", this.speed);
     }
 
