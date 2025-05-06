@@ -7,6 +7,7 @@ import { Boss } from "./Boss.js";
 import { ShatterEffect } from "./ShatterEffect.js";
 import { PauseMenu } from "./PauseMenu.js";
 import { RestartButton } from "./RestartButton.js";
+import { WallBlock } from "./WallBlock.js";
 
 export class Game {
   constructor(app, textures, sound) {
@@ -16,8 +17,10 @@ export class Game {
     this.shatterEffect = new ShatterEffect(app);
     this.bullets = [];
     this.asteroids = [];
+    this.wallBlocks = [];
     this.maxBullets = 30;
     this.bulletCount = 0;
+    this.level = 1;
     this.gameOver = false;
     this.paused = false;
     this.boss = null;
@@ -26,17 +29,17 @@ export class Game {
       () => this.togglePause(),
       () => this.restartGame()
     );
-    this.restartButton = null; // Initialize restartButton as null
+    this.restartButton = null;
 
     this.starBackground = new StarBackground(app);
     this.timer = 60;
-    this.timerText = new Text(`Time: ${this.timer}`, {
+    this.timerText = new Text(`Время: ${this.timer}`, {
       fontSize: 24,
       fill: 0xffffff,
     });
     this.timerText.x = 10;
     this.timerText.y = 10;
-    this.bulletText = new Text(`Bullets: ${this.maxBullets}`, {
+    this.bulletText = new Text(`Пули: ${this.maxBullets}`, {
       fontSize: 24,
       fill: 0xffffff,
     });
@@ -45,7 +48,6 @@ export class Game {
 
     this.app.stage.addChild(this.timerText);
     this.app.stage.addChild(this.bulletText);
-
     this.app.stage.addChild(this.pauseMenu.container);
     this.init();
   }
@@ -53,14 +55,16 @@ export class Game {
   async init() {
     await this.starBackground.init();
 
-    if (this.asteroids.length === 0 && !this.boss) {
+    if (this.level === 1) {
       this.createAsteroids();
+    } else if (this.level === 2) {
+      this.boss = new Boss(this.app, this.textures.boss);
+    } else if (this.level === 3) {
+      this.boss = new Boss(this.app, this.textures.boss);
+      this.createWall();
     }
 
-    if (!this.boss) {
-      this.startTimer();
-    }
-
+    this.startTimer();
     this.startGameLoop();
   }
 
@@ -72,10 +76,28 @@ export class Game {
     }
   }
 
+  createWall() {
+    this.wallBlocks = [];
+    const wallWidth = 5;
+    const wallHeight = 3;
+    const blockSize = 50;
+    const startX = this.app.view.width / 2 - (wallWidth * blockSize) / 2;
+    const startY = this.app.view.height / 2 - 200;
+
+    for (let i = 0; i < wallWidth; i++) {
+      for (let j = 0; j < wallHeight; j++) {
+        const x = startX + i * blockSize + blockSize / 2;
+        const y = startY + j * blockSize + blockSize / 2;
+        const block = new WallBlock(this.app, x, y, this.textures.asteroid);
+        this.wallBlocks.push(block);
+      }
+    }
+  }
+
   shoot() {
     if (this.gameOver) return;
 
-    if (this.bulletCount <= this.maxBullets) {
+    if (this.bulletCount < this.maxBullets) {
       const bullet = new Bullet(
         this.app,
         this.player.sprite.x + 55,
@@ -84,37 +106,31 @@ export class Game {
       );
       this.bullets.push(bullet);
       this.bulletCount++;
-
-      // update bullet text
-      this.bulletText.text = `Bullets: ${Math.max(
+      this.bulletText.text = `Пули: ${Math.max(
         this.maxBullets - this.bulletCount,
         0
       )}`;
 
-      // warning when last bullet is shot
       if (this.bulletCount === this.maxBullets) {
-        const warningText = new Text("Last bullet!", {
+        const îlwarningText = new Text("Последняя пуля!", {
           fontSize: 20,
           fill: 0xff0000,
         });
         warningText.x = this.app.view.width / 2 - warningText.width / 2;
         warningText.y = this.app.view.height / 2 - warningText.height / 2;
-
         this.app.stage.addChild(warningText);
-
-        // reset warning text after 1 second
         setTimeout(() => {
           this.app.stage.removeChild(warningText);
         }, 1000);
       }
     }
 
-    // check if player has no bullets left and no asteroids left
     if (
-      this.bulletCount > this.maxBullets &&
-      (this.bullets.length === 0 || this.asteroids.length > 0 || this.boss)
+      this.bulletCount >= this.maxBullets &&
+      this.bullets.length === 0 &&
+      (this.asteroids.length > 0 || this.wallBlocks.length > 0 || this.boss)
     ) {
-      this.endGame("YOU LOSE");
+      this.endGame("ТЫ ПРОИГРАЛ");
     }
   }
 
@@ -133,9 +149,9 @@ export class Game {
     this.bullets.forEach((bullet, bulletIndex) => {
       const bulletBounds = bullet.sprite.getBounds();
 
+      // Столкновения с астероидами
       this.asteroids.forEach((asteroid, asteroidIndex) => {
         const asteroidBounds = asteroid.sprite.getBounds();
-
         if (this.isIntersecting(bulletBounds, asteroidBounds)) {
           this.app.stage.removeChild(bullet.sprite);
           this.app.stage.removeChild(asteroid.sprite);
@@ -144,13 +160,30 @@ export class Game {
         }
       });
 
+      // Столкновения со стеной (только на 3-м уровне)
+      if (this.level === 3) {
+        for (let i = this.wallBlocks.length - 1; i >= 0; i--) {
+          const block = this.wallBlocks[i];
+          const blockBounds = block.sprite.getBounds();
+          if (this.isIntersecting(bulletBounds, blockBounds)) {
+            this.app.stage.removeChild(bullet.sprite);
+            block.destroy();
+            this.bullets.splice(bulletIndex, 1);
+            this.wallBlocks.splice(i, 1);
+            return; // Пуля уничтожена, дальше не проверяем
+          }
+        }
+      }
+
+      // Столкновения с боссом
       if (this.boss) {
         const bossBounds = this.boss.sprite.getBounds();
-
-        if (this.isIntersecting(bulletBounds, bossBounds)) {
+        if (
+          this.isIntersecting(bulletBounds, bossBounds) &&
+          (this.level === 2 || this.wallBlocks.length === 0)
+        ) {
           this.app.stage.removeChild(bullet.sprite);
           this.bullets.splice(bulletIndex, 1);
-
           if (this.boss.takeDamage()) {
             this.shatterEffect.create(this.boss.sprite);
             this.app.stage.removeChild(this.boss.sprite);
@@ -160,15 +193,17 @@ export class Game {
             });
             this.boss.bullets = [];
             this.boss = null;
-            this.endGame("YOU WIN");
+            if (this.level === 3) {
+              this.endGame("ТЫ ПОБЕДИЛ");
+            }
           }
         }
       }
 
+      // Столкновения между пулями игрока и босса
       if (this.boss) {
         this.boss.bullets.forEach((bossBullet, bossBulletIndex) => {
           const bossBulletBounds = bossBullet.sprite.getBounds();
-
           if (this.isIntersecting(bulletBounds, bossBulletBounds)) {
             this.app.stage.removeChild(bullet.sprite);
             this.app.stage.removeChild(bossBullet.sprite);
@@ -179,18 +214,17 @@ export class Game {
       }
     });
 
+    // Столкновения пуль босса с игроком
     if (this.boss) {
       this.boss.bullets.forEach((bullet, bulletIndex) => {
         const bulletBounds = bullet.sprite.getBounds();
         const playerBounds = this.player.sprite.getBounds();
-
         if (this.isIntersecting(bulletBounds, playerBounds)) {
           this.app.stage.removeChild(bullet.sprite);
           this.boss.bullets.splice(bulletIndex, 1);
-
           this.shatterEffect.create(this.player.sprite, 0xffffff);
           this.app.stage.removeChild(this.player.sprite);
-          this.endGame("YOU LOSE");
+          this.endGame("ТЫ ПРОИГРАЛ");
         }
       });
     }
@@ -198,35 +232,35 @@ export class Game {
 
   togglePause() {
     if (this.gameOver) return;
-
     this.paused = !this.paused;
     if (this.paused) {
       this.pauseMenu.show();
-      clearInterval(this.timerInterval); // Останавливаем таймер
+      clearInterval(this.timerInterval);
     } else {
       this.pauseMenu.hide();
-      this.startTimer(); // Перезапускаем таймер после снятия паузы
+      this.startTimer();
     }
   }
 
   restartGame() {
     this.paused = false;
     this.gameOver = false;
-    this.pauseMenu.hide(); // Скрываем меню паузы
-    this.shootCooldown = false; // Сбрасываем задержку выстрелов
+    this.level = 1;
+    this.pauseMenu.hide();
+    this.shootCooldown = false;
     this.app.ticker.start();
 
-    // Очистить пули
     this.bullets.forEach((bullet) => this.app.stage.removeChild(bullet.sprite));
     this.bullets = [];
 
-    // Очистить астероиды
     this.asteroids.forEach((asteroid) =>
       this.app.stage.removeChild(asteroid.sprite)
     );
     this.asteroids = [];
 
-    // Очистить босса
+    this.wallBlocks.forEach((block) => block.destroy());
+    this.wallBlocks = [];
+
     if (this.boss) {
       this.app.stage.removeChild(this.boss.sprite);
       this.app.stage.removeChild(this.boss.hpBar);
@@ -237,34 +271,27 @@ export class Game {
       this.boss = null;
     }
 
-    // Очистить кнопку рестарта, если она существует
     if (this.restartButton) {
       this.restartButton.destroy();
       this.restartButton = null;
     }
 
-    // Сбросить счётчики
     this.bulletCount = 0;
-    this.maxBullets = 10;
-    this.bulletText.text = `Bullets: ${this.maxBullets}`;
+    this.maxBullets = 30;
+    this.bulletText.text = `Пули: ${this.maxBullets}`;
 
-    // Уничтожить старого игрока и создать нового
-    this.player.destroy(); // Вызываем метод destroy для очистки
+    this.player.destroy();
     this.app.stage.removeChild(this.player.sprite);
     this.player = new Player(this.app, this, this.textures.player);
     this.app.stage.addChild(this.player.sprite);
 
-    // Создать новые астероиды
     this.createAsteroids();
-
-    // Сбросить таймер
     this.resetTimer();
 
-    // Удалить текст " YOU WIN" или "YOU LOSE"
     this.app.stage.children.forEach((child) => {
       if (
         child instanceof Text &&
-        (child.text === "YOU WIN" || child.text === "YOU LOSE")
+        (child.text === "ТЫ ПОБЕДИЛ" || child.text === "ТЫ ПРОИГРАЛ")
       ) {
         this.app.stage.removeChild(child);
       }
@@ -276,34 +303,43 @@ export class Game {
 
     this.bullets.forEach((bullet) => bullet.update());
     this.asteroids.forEach((asteroid) => asteroid.update());
+    if (this.boss) {
+      this.boss.update();
+    }
     this.checkCollisions();
 
-    if (this.asteroids.length === 0) {
-      if (!this.boss) {
-        if (!this.gameOver) {
-          this.boss = new Boss(this.app, this.textures.boss);
-          this.bulletCount = 0;
-          this.maxBullets = 35; // Increase bullets to 35 for boss level
-          this.timer = 120; // Set timer to 2 minutes for boss level
-          this.timerText.text = `Time: ${this.timer}`; // Update timer display
-
-          this.bullets.forEach((bullet) => {
-            this.app.stage.removeChild(bullet.sprite);
-          });
-          this.bullets = [];
-
-          this.bulletText.text = `Bullets: ${this.maxBullets}`;
-          this.resetTimer();
-        }
-      } else {
-        this.boss.update();
-      }
+    if (this.level === 1 && this.asteroids.length === 0) {
+      this.level = 2;
+      this.boss = new Boss(this.app, this.textures.boss);
+      this.bulletCount = 0;
+      this.maxBullets = 30;
+      this.timer = 120;
+      this.timerText.text = `Время: ${this.timer}`;
+      this.bulletText.text = `Пули: ${this.maxBullets}`;
+      this.bullets.forEach((bullet) => {
+        this.app.stage.removeChild(bullet.sprite);
+      });
+      this.bullets = [];
+      this.resetTimer();
+    } else if (this.level === 2 && !this.boss) {
+      this.level = 3;
+      this.boss = new Boss(this.app, this.textures.boss);
+      this.createWall();
+      this.bulletCount = 0;
+      this.maxBullets = 40;
+      this.timer = 150;
+      this.timerText.text = `Время: ${this.timer}`;
+      this.bulletText.text = `Пули: ${this.maxBullets}`;
+      this.bullets.forEach((bullet) => {
+        this.app.stage.removeChild(bullet.sprite);
+      });
+      this.bullets = [];
+      this.resetTimer();
     }
   }
 
   endGame(message) {
     this.gameOver = true;
-
     if (this.boss) {
       clearInterval(this.boss.shootingInterval);
     }
@@ -313,18 +349,15 @@ export class Game {
       fill: 0xffffff,
       align: "center",
     });
-
     text.x = this.app.view.width / 2 - text.width / 2;
     text.y = this.app.view.height / 2 - text.height / 2;
-
     this.app.stage.addChild(text);
 
-    // Create RestartButton below the game over/win message
     this.restartButton = new RestartButton(
       this.app,
       () => this.restartGame(),
-      null, // Use default x (centered)
-      this.app.view.height / 2 + 50 // Position below the message
+      null,
+      this.app.view.height / 2 + 50
     );
   }
 
@@ -340,27 +373,24 @@ export class Game {
     if (this.timer === 0) {
       this.timer = 60;
     }
-
     this.timerInterval = setInterval(() => {
       if (this.gameOver || this.paused) {
         clearInterval(this.timerInterval);
         return;
       }
-
       this.timer--;
-      this.timerText.text = `Time: ${this.timer}`;
-
+      this.timerText.text = `Время: ${this.timer}`;
       if (this.timer <= 0) {
         clearInterval(this.timerInterval);
-        this.endGame("YOU LOSE");
+        this.endGame("ТЫ ПРОИГРАЛ");
       }
     }, 1000);
   }
 
   resetTimer() {
     clearInterval(this.timerInterval);
-    this.timer = this.boss ? 120 : 60; // Use 120 seconds for boss, 60 for asteroids
-    this.timerText.text = `Time: ${this.timer}`;
+    this.timer = this.level === 1 ? 60 : this.level === 2 ? 120 : 150;
+    this.timerText.text = `Время: ${this.timer}`;
     this.startTimer();
   }
 }
