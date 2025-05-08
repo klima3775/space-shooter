@@ -184,12 +184,10 @@ export class Game {
       // Столкновения с боссом
       if (this.boss) {
         const bossBounds = this.boss.sprite.getBounds();
-        if (
-          this.isIntersecting(bulletBounds, bossBounds) &&
-          (this.level === 2 || this.wallBlocks.length === 0)
-        ) {
+        if (this.isIntersecting(bulletBounds, bossBounds)) {
           this.app.stage.removeChild(bullet.sprite);
           this.bullets.splice(bulletIndex, 1);
+
           if (this.boss.takeDamage()) {
             this.shatterEffect.create(this.boss.sprite);
             this.app.stage.removeChild(this.boss.sprite);
@@ -199,6 +197,8 @@ export class Game {
             });
             this.boss.bullets = [];
             this.boss = null;
+
+            // Завершение игры, если это 3 уровень
             if (this.level === 3) {
               this.endGame("ТЫ ПОБЕДИЛ");
             }
