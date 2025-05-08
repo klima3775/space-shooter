@@ -282,6 +282,16 @@ export class Game {
       this.restartButton = null;
     }
 
+    // Удаляем текстовые объекты с надписями "YOU LOSE" или "YOU WIN"
+    this.app.stage.children.forEach((child) => {
+      if (
+        child instanceof Text &&
+        (child.text === "YOU LOSE" || child.text === "YOU WIN")
+      ) {
+        this.app.stage.removeChild(child);
+      }
+    });
+
     this.bulletCount = 0;
     this.maxBullets = 30;
     this.bulletText.text = `Пули: ${this.maxBullets}`;
@@ -293,15 +303,6 @@ export class Game {
 
     this.createAsteroids();
     this.resetTimer();
-
-    this.app.stage.children.forEach((child) => {
-      if (
-        child instanceof Text &&
-        (child.text === "ТЫ ПОБЕДИЛ" || child.text === "ТЫ ПРОИГРАЛ")
-      ) {
-        this.app.stage.removeChild(child);
-      }
-    });
   }
 
   update() {
