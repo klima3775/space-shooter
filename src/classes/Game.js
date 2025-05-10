@@ -202,7 +202,7 @@ export class Game {
 
             // Завершение игры, если это 3 уровень
             if (this.level === 3) {
-              this.endGame("ТЫ ПОБЕДИЛ");
+              this.endGame("YOU WINЛ");
             }
           }
         }
