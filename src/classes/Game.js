@@ -18,7 +18,7 @@ export class Game {
     this.bullets = [];
     this.asteroids = [];
     this.wallBlocks = [];
-    this.maxBullets = 30;
+    this.maxBullets = 10;
     this.bulletCount = 0;
     this.level = 1;
     this.gameOver = false;
@@ -78,17 +78,19 @@ export class Game {
 
   createWall() {
     this.wallBlocks = [];
-    const wallWidth = 5;
-    const wallHeight = 3;
     const blockSize = 50;
-    const startX = this.app.view.width / 2 - (wallWidth * blockSize) / 2;
+    const gap = 5;
+    const wallHeight = 3;
+    const wallWidth = Math.floor(this.app.view.width / (blockSize + gap));
+    const startX =
+      (this.app.view.width - (wallWidth * (blockSize + gap) - gap)) / 2;
     const startY = this.app.view.height / 2 - 200;
 
     for (let i = 0; i < wallWidth; i++) {
       for (let j = 0; j < wallHeight; j++) {
-        const x = startX + i * blockSize + blockSize / 2;
-        const y = startY + j * blockSize + blockSize / 2;
-        const block = new WallBlock(this.app, x, y, this.textures.asteroid);
+        const x = startX + i * (blockSize + gap);
+        const y = startY + j * (blockSize + gap);
+        const block = new WallBlock(this.app, x, y, this.shatterEffect); // Передаем shatterEffect
         this.wallBlocks.push(block);
       }
     }
@@ -230,7 +232,7 @@ export class Game {
           this.boss.bullets.splice(bulletIndex, 1);
           this.shatterEffect.create(this.player.sprite, 0xffffff);
           this.app.stage.removeChild(this.player.sprite);
-          this.endGame("ТЫ ПРОИГРАЛ");
+          this.endGame("YOU LOSE");
         }
       });
     }
@@ -389,7 +391,7 @@ export class Game {
       this.timerText.text = `Время: ${this.timer}`;
       if (this.timer <= 0) {
         clearInterval(this.timerInterval);
-        this.endGame("ТЫ ПРОИГРАЛ");
+        this.endGame("YOU LOSE");
       }
     }, 1000);
   }
