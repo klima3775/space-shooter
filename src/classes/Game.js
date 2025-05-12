@@ -8,12 +8,52 @@ import { ShatterEffect } from "./ShatterEffect.js";
 import { PauseMenu } from "./PauseMenu.js";
 import { RestartButton } from "./RestartButton.js";
 import { WallBlock } from "./WallBlock.js";
+import { Howl } from "howler";
 
 export class Game {
-  constructor(app, textures, sound) {
+  constructor(app, textures) {
     this.app = app;
     this.textures = textures;
-    this.player = new Player(app, this, textures.player);
+
+    // Инициализация звуков
+    this.sounds = {
+      backgroundMusic: new Howl({
+        src: ["./audio/backgroundMusic.wav"],
+        loop: true,
+        volume: 0.5,
+      }),
+      playerShoot: new Howl({
+        src: ["./audio/shoot.wav"],
+        volume: 0.3,
+      }),
+      bossShoot: new Howl({
+        src: ["./audio/enemyShoot.wav"],
+        volume: 0.3,
+      }),
+      destroy: new Howl({
+        src: ["./audio/explode.wav"],
+        volume: 0.5,
+      }),
+      wallBlockDestroy: new Howl({
+        src: ["./audio/bomb.mp3"],
+        volume: 0.4,
+      }),
+      pause: new Howl({
+        src: ["./audio/select.mp3"], // Заменили shot.mp3 на select.mp3
+        volume: 0.4,
+      }),
+      gameOver: new Howl({
+        src: ["./audio/gameOver.mp3"], // Переименовали restartButton в gameOver
+        volume: 0.4,
+      }),
+    };
+
+    this.player = new Player(
+      app,
+      this,
+      textures.player,
+      this.sounds.playerShoot
+    );
     this.shatterEffect = new ShatterEffect(app);
     this.bullets = [];
     this.asteroids = [];
@@ -55,12 +95,15 @@ export class Game {
   async init() {
     await this.starBackground.init();
 
+    // Запуск фоновой музыки
+    this.sounds.backgroundMusic.play();
+
     if (this.level === 1) {
       this.createAsteroids();
     } else if (this.level === 2) {
-      this.boss = new Boss(this.app, this.textures.boss);
+      this.boss = new Boss(this.app, this.textures.boss, this.sounds);
     } else if (this.level === 3) {
-      this.boss = new Boss(this.app, this.textures.boss);
+      this.boss = new Boss(this.app, this.textures.boss, this.sounds);
       this.createWall();
     }
 
@@ -90,7 +133,13 @@ export class Game {
       for (let j = 0; j < wallHeight; j++) {
         const x = startX + i * (blockSize + gap);
         const y = startY + j * (blockSize + gap);
-        const block = new WallBlock(this.app, x, y, this.shatterEffect); // Передаем shatterEffect
+        const block = new WallBlock(
+          this.app,
+          x,
+          y,
+          this.shatterEffect,
+          this.sounds.wallBlockDestroy
+        );
         this.wallBlocks.push(block);
       }
     }
@@ -109,15 +158,16 @@ export class Game {
       this.bullets.push(bullet);
       this.bulletCount++;
 
-      // update bullet text
-      this.bulletText.text = `Bullets: ${Math.max(
+      // Воспроизведение звука выстрела игрока
+      this.sounds.playerShoot.play();
+
+      this.bulletText.text = `Пули: ${Math.max(
         this.maxBullets - this.bulletCount,
         0
       )}`;
 
-      // warning when last bullet is shot
       if (this.bulletCount === this.maxBullets) {
-        const warningText = new Text("Last bullet!", {
+        const warningText = new Text("Последняя пуля!", {
           fontSize: 20,
           fill: 0xff0000,
         });
@@ -126,14 +176,12 @@ export class Game {
 
         this.app.stage.addChild(warningText);
 
-        // reset warning text after 1 second
         setTimeout(() => {
           this.app.stage.removeChild(warningText);
         }, 1000);
       }
     }
 
-    // check if player has no bullets left and no asteroids left
     if (
       this.bulletCount > this.maxBullets &&
       (this.bullets.length === 0 || this.asteroids.length > 0 || this.boss)
@@ -157,7 +205,6 @@ export class Game {
     this.bullets.forEach((bullet, bulletIndex) => {
       const bulletBounds = bullet.sprite.getBounds();
 
-      // Столкновения с астероидами
       this.asteroids.forEach((asteroid, asteroidIndex) => {
         const asteroidBounds = asteroid.sprite.getBounds();
         if (this.isIntersecting(bulletBounds, asteroidBounds)) {
@@ -168,7 +215,6 @@ export class Game {
         }
       });
 
-      // Столкновения со стеной (только на 3-м уровне)
       if (this.level === 3) {
         for (let i = this.wallBlocks.length - 1; i >= 0; i--) {
           const block = this.wallBlocks[i];
@@ -178,12 +224,11 @@ export class Game {
             block.destroy();
             this.bullets.splice(bulletIndex, 1);
             this.wallBlocks.splice(i, 1);
-            return; // Пуля уничтожена, дальше не проверяем
+            return;
           }
         }
       }
 
-      // Столкновения с боссом
       if (this.boss) {
         const bossBounds = this.boss.sprite.getBounds();
         if (this.isIntersecting(bulletBounds, bossBounds)) {
@@ -200,15 +245,13 @@ export class Game {
             this.boss.bullets = [];
             this.boss = null;
 
-            // Завершение игры, если это 3 уровень
             if (this.level === 3) {
-              this.endGame("YOU WINЛ");
+              this.endGame("YOU WIN");
             }
           }
         }
       }
 
-      // Столкновения между пулями игрока и босса
       if (this.boss) {
         this.boss.bullets.forEach((bossBullet, bossBulletIndex) => {
           const bossBulletBounds = bossBullet.sprite.getBounds();
@@ -222,7 +265,6 @@ export class Game {
       }
     });
 
-    // Столкновения пуль босса с игроком
     if (this.boss) {
       this.boss.bullets.forEach((bullet, bulletIndex) => {
         const bulletBounds = bullet.sprite.getBounds();
@@ -232,6 +274,7 @@ export class Game {
           this.boss.bullets.splice(bulletIndex, 1);
           this.shatterEffect.create(this.player.sprite, 0xffffff);
           this.app.stage.removeChild(this.player.sprite);
+          this.sounds.destroy.play();
           this.endGame("YOU LOSE");
         }
       });
@@ -244,9 +287,13 @@ export class Game {
     if (this.paused) {
       this.pauseMenu.show();
       clearInterval(this.timerInterval);
+      this.sounds.backgroundMusic.pause();
+      this.sounds.pause.play();
     } else {
       this.pauseMenu.hide();
       this.startTimer();
+      this.sounds.backgroundMusic.play();
+      this.sounds.pause.play();
     }
   }
 
@@ -282,9 +329,9 @@ export class Game {
     if (this.restartButton) {
       this.restartButton.destroy();
       this.restartButton = null;
+      // Убрали this.sounds.gameOver.play(), чтобы не было звука при рестарте
     }
 
-    // Удаляем текстовые объекты с надписями "YOU LOSE" или "YOU WIN"
     this.app.stage.children.forEach((child) => {
       if (
         child instanceof Text &&
@@ -300,11 +347,19 @@ export class Game {
 
     this.player.destroy();
     this.app.stage.removeChild(this.player.sprite);
-    this.player = new Player(this.app, this, this.textures.player);
+    this.player = new Player(
+      this.app,
+      this,
+      this.textures.player,
+      this.sounds.playerShoot
+    );
     this.app.stage.addChild(this.player.sprite);
 
     this.createAsteroids();
     this.resetTimer();
+
+    this.sounds.backgroundMusic.stop();
+    this.sounds.backgroundMusic.play();
   }
 
   update() {
@@ -319,7 +374,7 @@ export class Game {
 
     if (this.level === 1 && this.asteroids.length === 0) {
       this.level = 2;
-      this.boss = new Boss(this.app, this.textures.boss);
+      this.boss = new Boss(this.app, this.textures.boss, this.sounds);
       this.bulletCount = 0;
       this.maxBullets = 30;
       this.timer = 120;
@@ -332,7 +387,7 @@ export class Game {
       this.resetTimer();
     } else if (this.level === 2 && !this.boss) {
       this.level = 3;
-      this.boss = new Boss(this.app, this.textures.boss);
+      this.boss = new Boss(this.app, this.textures.boss, this.sounds);
       this.createWall();
       this.bulletCount = 0;
       this.maxBullets = 40;
@@ -368,6 +423,13 @@ export class Game {
       null,
       this.app.view.height / 2 + 50
     );
+
+    this.sounds.backgroundMusic.stop();
+
+    // Проигрываем звук поражения только при "YOU LOSE"
+    if (message === "YOU LOSE") {
+      this.sounds.gameOver.play();
+    }
   }
 
   startGameLoop() {
