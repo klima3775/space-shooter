@@ -269,11 +269,17 @@ export class Game {
       clearInterval(this.timerInterval);
       this.sounds.backgroundMusic.pause();
       this.sounds.pause.play();
+      if (this.boss) {
+        this.boss.pause(true); 
+      }
     } else {
       this.pauseMenu.hide();
       this.startTimer();
       this.sounds.backgroundMusic.play();
       this.sounds.pause.play();
+      if (this.boss) {
+        this.boss.pause(false); 
+      }
     }
   }
 

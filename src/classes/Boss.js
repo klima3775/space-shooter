@@ -2,7 +2,7 @@ import { Graphics, Sprite } from "pixi.js";
 import { Bullet } from "./Bullet.js";
 
 export class Boss {
-  constructor(app, texture,sounds) {
+  constructor(app, texture, sounds) {
     this.app = app;
     this.sprite = new Sprite(texture);
     this.sprite.width = 150;
@@ -14,12 +14,12 @@ export class Boss {
     this.hpBar = new Graphics();
     this.bullets = [];
     this.movingDirection = 1;
-    this.speed = 4; // Початкова швидкість
+    this.speed = 4;
     this.phase = 1;
     this.shootingInterval = null;
-    this.burstInterval = null; // Для залпів на третій фазі
-    this.isBursting = false; // Флаг для відстеження стану залпу
-    this.phaseChangeInterval = null; // Таймер для автоматичної зміни фаз
+    this.burstInterval = null;
+    this.isBursting = false;
+    this.phaseChangeInterval = null;
     this.app.stage.addChild(this.sprite);
     this.app.stage.addChild(this.hpBar);
     this.init();
@@ -34,9 +34,13 @@ export class Boss {
 
     console.log("Boss init: starting shooting interval, phase:", this.phase);
 
+    this.startShooting();
+    this.startPhaseChangeTimer();
+  }
+
+  startShooting() {
     this.shootingInterval = setInterval(() => {
       if (this.app.gameOver || this.app.paused) {
-        clearInterval(this.shootingInterval);
         return;
       }
 
@@ -50,9 +54,6 @@ export class Boss {
         this.shootBurst();
       }
     }, 2000);
-
-    // Додаємо таймер для автоматичної зміни фаз
-    this.startPhaseChangeTimer();
   }
 
   startPhaseChangeTimer() {
@@ -62,14 +63,12 @@ export class Boss {
 
     this.phaseChangeInterval = setInterval(() => {
       if (this.app.gameOver || this.app.paused) {
-        clearInterval(this.phaseChangeInterval);
         return;
       }
 
-      this.phase = (this.phase % 3) + 1; // Циклічно змінюємо фазу (1 -> 2 -> 3 -> 1)
+      this.phase = (this.phase % 3) + 1;
       console.log("Boss phase changed to:", this.phase);
 
-      // Оновлюємо швидкість залежно від фази
       if (this.phase === 1) {
         this.speed = 4;
       } else if (this.phase === 2) {
@@ -77,12 +76,12 @@ export class Boss {
       } else if (this.phase === 3) {
         this.speed = 6;
       }
-    }, 10000); // Змінюємо фазу кожні 10 секунд
+    }, 10000);
   }
 
   updateHpBar() {
     this.hpBar.clear();
-    this.hpBar.beginFill(0x00ff00); // Зелена смужка здоров'я
+    this.hpBar.beginFill(0x00ff00);
     const barWidth = (this.hp / 12) * 150;
     this.hpBar.drawRect(this.sprite.x, this.sprite.y - 10, barWidth, 5);
     this.hpBar.endFill();
@@ -127,7 +126,7 @@ export class Boss {
     this.sounds.enemyShoot.play();
     this.isBursting = true;
     let burstCount = 0;
-    const maxBursts = 3; // Кількість пострілів у залпі
+    const maxBursts = 3;
 
     this.burstInterval = setInterval(() => {
       if (this.app.paused || this.app.gameOver) {
@@ -136,17 +135,16 @@ export class Boss {
         return;
       }
 
-      // Стріляємо двома кулями з невеликим розкидом
       [-0.5, 0.5].forEach((dir) => {
         const bullet = new Bullet(
           this.app,
           this.sprite.x + this.sprite.width / 2 + dir * 20,
           this.sprite.y + this.sprite.height,
           1,
-          6, // Збільшена швидкість
-          0xff00ff // Фіолетові кулі
+          6,
+          0xff00ff
         );
-        bullet.speedX = dir * 3; // Горизонтальний розкид
+        bullet.speedX = dir * 3;
         this.bullets.push(bullet);
         this.app.stage.addChild(bullet.sprite);
       });
@@ -156,7 +154,7 @@ export class Boss {
         clearInterval(this.burstInterval);
         this.isBursting = false;
       }
-    }, 300); // Інтервал між пострілами в залпі
+    }, 300);
   }
 
   move() {
@@ -205,6 +203,34 @@ export class Boss {
         this.bullets.splice(index, 1);
       }
     });
+  }
+
+  pause(paused) {
+    if (paused) {
+      
+      if (this.shootingInterval) {
+        clearInterval(this.shootingInterval);
+        this.shootingInterval = null;
+      }
+      if (this.burstInterval) {
+        clearInterval(this.burstInterval);
+        this.burstInterval = null;
+        this.isBursting = false;
+      }
+      if (this.phaseChangeInterval) {
+        clearInterval(this.phaseChangeInterval);
+        this.phaseChangeInterval = null;
+      }
+    } else {
+      
+      if (!this.shootingInterval) {
+        this.startShooting();
+      }
+      if (!this.phaseChangeInterval) {
+        this.startPhaseChangeTimer();
+      }
+      
+    }
   }
 
   destroy() {
