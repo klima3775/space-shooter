@@ -14,46 +14,19 @@ export class Game {
   constructor(app, textures) {
     this.app = app;
     this.textures = textures;
-
-    // Инициализация звуков
-    this.sounds = {
-      backgroundMusic: new Howl({
-        src: ["./audio/backgroundMusic.wav"],
-        loop: true,
-        volume: 0.5,
-      }),
-      playerShoot: new Howl({
-        src: ["./audio/shoot.wav"],
-        volume: 0.3,
-      }),
-      bossShoot: new Howl({
-        src: ["./audio/enemyShoot.wav"],
-        volume: 0.3,
-      }),
-      destroy: new Howl({
-        src: ["./audio/explode.wav"],
-        volume: 0.5,
-      }),
-      wallBlockDestroy: new Howl({
-        src: ["./audio/bomb.mp3"],
-        volume: 0.4,
-      }),
-      pause: new Howl({
-        src: ["./audio/select.mp3"], // Заменили shot.mp3 на select.mp3
-        volume: 0.4,
-      }),
-      gameOver: new Howl({
-        src: ["./audio/gameOver.mp3"], // Переименовали restartButton в gameOver
-        volume: 0.4,
-      }),
-    };
-
     this.player = new Player(
       app,
       this,
       textures.player,
-      this.sounds.playerShoot
+
     );
+    this.sounds = {
+      backgroundMusic: new Howl({
+        src: ["/assets/backgroundMusic.wav"],
+        loop: true,
+        volume: 0.5,
+      })
+    }
     this.shatterEffect = new ShatterEffect(app);
     this.bullets = [];
     this.asteroids = [];
@@ -95,7 +68,6 @@ export class Game {
   async init() {
     await this.starBackground.init();
 
-    // Запуск фоновой музыки
     this.sounds.backgroundMusic.play();
 
     if (this.level === 1) {

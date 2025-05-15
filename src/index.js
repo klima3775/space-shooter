@@ -1,4 +1,4 @@
-import { Application, Assets, Sprite } from "pixi.js";
+import { Application, Assets } from "pixi.js";
 import { Game } from "./classes/Game.js";
 
 document.getElementById("startButton").addEventListener("click", async () => {
