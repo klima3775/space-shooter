@@ -2,10 +2,11 @@ import { Graphics, Sprite } from "pixi.js";
 import { Bullet } from "./Bullet.js";
 
 export class Boss {
-  constructor(app, texture) {
+  constructor(app, texture,sounds) {
     this.app = app;
     this.sprite = new Sprite(texture);
     this.sprite.width = 150;
+    this.sounds = sounds;
     this.sprite.height = 100;
     this.sprite.x = app.screen.width / 2 - 75;
     this.sprite.y = 50;
@@ -89,7 +90,7 @@ export class Boss {
 
   shoot() {
     if (this.app.paused) return;
-
+    this.sounds.enemyShoot.play();
     const bullet = new Bullet(
       this.app,
       this.sprite.x + this.sprite.width / 2,
@@ -104,7 +105,7 @@ export class Boss {
 
   shootMultiple() {
     if (this.app.paused) return;
-
+    this.sounds.enemyShoot.play();
     const directions = [-1, 0, 1];
     directions.forEach((dir) => {
       const bullet = new Bullet(
@@ -123,7 +124,7 @@ export class Boss {
 
   shootBurst() {
     if (this.app.paused || this.isBursting) return;
-
+    this.sounds.enemyShoot.play();
     this.isBursting = true;
     let burstCount = 0;
     const maxBursts = 3; // Кількість пострілів у залпі
