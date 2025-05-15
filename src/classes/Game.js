@@ -26,19 +26,14 @@ export class Game {
         loop: true,
         volume: 0.5,
       }),
-      bomb: new Howl({ src: ["/assets/bomb.mp3"], volume: 1.0 }),
       enemyShoot: new Howl({ src: ["/assets/enemyShoot.wav"], volume: 1.0 }),
-      explode: new Howl({ src: ["/assets/explode.wav"], volume: 1.0 }),
       gameOver: new Howl({ src: ["/assets/gameOver.mp3"], volume: 1.0 }),
-      select: new Howl({ src: ["/assets/select.mp3"], volume: 1.0 }),
-      shoot: new Howl({ src: ["/assets/shoot.wav"], volume: 1.0 }),
-      start: new Howl({ src: ["/assets/start.mp3"], volume: 1.0 }),
-    
-      // Додай ці відсутні звуки:
+      start: new Howl({ src: ["/assets/start.mp3"], volume: 1.0 }), // doesnt work
       playerShoot: new Howl({ src: ["/assets/shoot.wav"], volume: 1.0 }),
       destroy: new Howl({ src: ["/assets/explode.wav"], volume: 1.0 }),
       pause: new Howl({ src: ["/assets/select.mp3"], volume: 1.0 }),
-      wallBlockDestroy: new Howl({ src: ["/assets/bomb.mp3"], volume: 1.0 }),
+      // need enemy shoot sound for boss
+      wallBlockDestroy: new Howl({ src: ["/assets/bomb.mp3"], volume: 1.0 }),// for wall enemy doesnt work
     };
     this.shatterEffect = new ShatterEffect(app);
     this.bullets = [];
