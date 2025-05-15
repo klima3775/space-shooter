@@ -1,10 +1,10 @@
 import { Graphics } from "pixi.js";
 
 export class WallBlock {
-  constructor(app, x, y, shatterEffect) {
+  constructor(app, x, y, shatterEffect, sound) {
     this.app = app;
     this.shatterEffect = shatterEffect;
-
+    this.sound = sound;
     this.sprite = new Graphics();
     this.sprite.beginFill(0xff0000);
     this.sprite.drawRect(0, 0, 50, 50);
@@ -19,10 +19,8 @@ export class WallBlock {
   destroy() {
     if (this.shatterEffect) {
       this.shatterEffect.create(this.sprite, 0xff0000);
+      this.sound.play();
     }
-
-    // Удаляем блок
-    this.app.stage.removeChild(this.sprite);
     this.sprite.destroy();
   }
 }
