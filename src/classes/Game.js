@@ -25,8 +25,21 @@ export class Game {
         src: ["/assets/backgroundMusic.wav"],
         loop: true,
         volume: 0.5,
-      })
-    }
+      }),
+      bomb: new Howl({ src: ["/assets/bomb.mp3"], volume: 1.0 }),
+      enemyShoot: new Howl({ src: ["/assets/enemyShoot.wav"], volume: 1.0 }),
+      explode: new Howl({ src: ["/assets/explode.wav"], volume: 1.0 }),
+      gameOver: new Howl({ src: ["/assets/gameOver.mp3"], volume: 1.0 }),
+      select: new Howl({ src: ["/assets/select.mp3"], volume: 1.0 }),
+      shoot: new Howl({ src: ["/assets/shoot.wav"], volume: 1.0 }),
+      start: new Howl({ src: ["/assets/start.mp3"], volume: 1.0 }),
+    
+      // Додай ці відсутні звуки:
+      playerShoot: new Howl({ src: ["/assets/shoot.wav"], volume: 1.0 }),
+      destroy: new Howl({ src: ["/assets/explode.wav"], volume: 1.0 }),
+      pause: new Howl({ src: ["/assets/select.mp3"], volume: 1.0 }),
+      wallBlockDestroy: new Howl({ src: ["/assets/bomb.mp3"], volume: 1.0 }),
+    };
     this.shatterEffect = new ShatterEffect(app);
     this.bullets = [];
     this.asteroids = [];
@@ -119,13 +132,13 @@ export class Game {
 
   shoot() {
     if (this.gameOver) return;
-
+    
     if (this.bulletCount <= this.maxBullets) {
       const bullet = new Bullet(
         this.app,
         this.player.sprite.x + 55,
         this.player.sprite.y,
-        -1
+        -1   
       );
       this.bullets.push(bullet);
       this.bulletCount++;
