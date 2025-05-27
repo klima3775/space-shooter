@@ -11,7 +11,7 @@ export class RestartButton {
       align: "center",
     });
 
-    // Если переданы координаты - ставим туда, иначе по центру
+    
     this.button.x = x !== null ? x : app.view.width / 2 - this.button.width / 2;
     this.button.y = y !== null ? y : app.view.height / 2 + 50;
 
