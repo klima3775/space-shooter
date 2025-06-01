@@ -9,9 +9,8 @@ export class Player {
     this.sprite.width = 110;
     this.sprite.height = 85;
     this.sprite.x = this.app.view.width / 2 - 25;
-    this.sprite.y = this.app.view.height - 90;
-    this.app.stage.addChild(this.sprite);
-    this.speed = 8;
+    this.sprite.y = this.app.view.height - 90;    this.app.stage.addChild(this.sprite);
+    this.speed = 12;
     this.direction = 0;
     this.animationFrameId = null; // Для хранения ID анимационного цикла
 

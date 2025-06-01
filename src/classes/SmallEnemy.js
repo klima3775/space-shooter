@@ -7,10 +7,9 @@ export class SmallEnemy {
     this.sprite = new Sprite(texture);
     this.sprite.x = x;
     this.sprite.y = y;
-    this.sprite.anchor.set(0.5);
-    this.bullets = [];
+    this.sprite.anchor.set(0.5);    this.bullets = [];
     this.health = 1;
-    this.speed = 2;
+    this.speed = 4;
     this.app.stage.addChild(this.sprite);
     this.shootingInterval = setInterval(() => this.shoot(), 2000); // Стреляют каждые 2 секунды
   }

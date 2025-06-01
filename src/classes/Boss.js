@@ -11,10 +11,9 @@ export class Boss {
     this.sprite.x = app.screen.width / 2 - 75;
     this.sprite.y = 50;
     this.hp = 12;
-    this.hpBar = new Graphics();
-    this.bullets = [];
+    this.hpBar = new Graphics();    this.bullets = [];
     this.movingDirection = 1;
-    this.speed = 4;
+    this.speed = 6;
     this.phase = 1;
     this.shootingInterval = null;
     this.burstInterval = null;
@@ -67,14 +66,12 @@ export class Boss {
       }
 
       this.phase = (this.phase % 3) + 1;
-      console.log("Boss phase changed to:", this.phase);
-
-      if (this.phase === 1) {
-        this.speed = 4;
-      } else if (this.phase === 2) {
-        this.speed = 5;
-      } else if (this.phase === 3) {
+      console.log("Boss phase changed to:", this.phase);      if (this.phase === 1) {
         this.speed = 6;
+      } else if (this.phase === 2) {
+        this.speed = 8;
+      } else if (this.phase === 3) {
+        this.speed = 10;
       }
     }, 10000);
   }
@@ -89,13 +86,12 @@ export class Boss {
 
   shoot() {
     if (this.app.paused) return;
-    this.sounds.enemyShoot.play();
-    const bullet = new Bullet(
+    this.sounds.enemyShoot.play();    const bullet = new Bullet(
       this.app,
       this.sprite.x + this.sprite.width / 2,
       this.sprite.y + this.sprite.height,
       1,
-      5,
+      8,
       0xff0000
     );
     this.bullets.push(bullet);
@@ -106,16 +102,15 @@ export class Boss {
     if (this.app.paused) return;
     this.sounds.enemyShoot.play();
     const directions = [-1, 0, 1];
-    directions.forEach((dir) => {
-      const bullet = new Bullet(
+    directions.forEach((dir) => {      const bullet = new Bullet(
         this.app,
         this.sprite.x + this.sprite.width / 2 + dir * 30,
         this.sprite.y + this.sprite.height,
         1,
-        5,
+        8,
         0xff9900
       );
-      bullet.speedX = dir * 2;
+      bullet.speedX = dir * 3;
       this.bullets.push(bullet);
       this.app.stage.addChild(bullet.sprite);
     });
@@ -135,16 +130,15 @@ export class Boss {
         return;
       }
 
-      [-0.5, 0.5].forEach((dir) => {
-        const bullet = new Bullet(
+      [-0.5, 0.5].forEach((dir) => {        const bullet = new Bullet(
           this.app,
           this.sprite.x + this.sprite.width / 2 + dir * 20,
           this.sprite.y + this.sprite.height,
           1,
-          6,
+          10,
           0xff00ff
         );
-        bullet.speedX = dir * 3;
+        bullet.speedX = dir * 5;
         this.bullets.push(bullet);
         this.app.stage.addChild(bullet.sprite);
       });

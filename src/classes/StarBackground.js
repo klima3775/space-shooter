@@ -7,10 +7,9 @@ export class StarBackground {
     this.app.stage.addChild(this.starContainer);
     this.starTexture = null;
     this.stars = [];
-    this.starAmount = 1000;
-    this.cameraZ = 0;
+    this.starAmount = 1000;    this.cameraZ = 0;
     this.fov = 20;
-    this.baseSpeed = 0.025;
+    this.baseSpeed = 0.04;
     this.starStretch = 5;
     this.starBaseSize = 0.05;
   }
@@ -53,7 +52,7 @@ export class StarBackground {
   update(time) {
     if (this.app.paused) return;
 
-    this.cameraZ += time.deltaTime * 10 * this.baseSpeed;
+    this.cameraZ += time.deltaTime * 16 * this.baseSpeed;
     for (const star of this.stars) {
       if (star.z < this.cameraZ) this.randomizeStar(star);
 

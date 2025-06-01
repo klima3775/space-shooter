@@ -23,10 +23,8 @@ export class ShatterEffect {
       fragment.fill();
 
       fragment.x = target.x + Math.random() * target.width;
-      fragment.y = target.y + Math.random() * target.height;
-
-      fragment.vx = (Math.random() - 0.5) * 10;
-      fragment.vy = (Math.random() - 0.5) * 10;
+      fragment.y = target.y + Math.random() * target.height;      fragment.vx = (Math.random() - 0.5) * 16;
+      fragment.vy = (Math.random() - 0.5) * 16;
 
       this.app.stage.addChild(fragment);
       fragments.push(fragment);
@@ -35,10 +33,9 @@ export class ShatterEffect {
     const animation = () => {
       if (this.app.paused) return; // Пропустить анимацию во время паузы
 
-      fragments.forEach((fragment, index) => {
-        fragment.x += fragment.vx;
+      fragments.forEach((fragment, index) => {        fragment.x += fragment.vx;
         fragment.y += fragment.vy;
-        fragment.alpha -= 0.005;
+        fragment.alpha -= 0.008;
 
         if (fragment.alpha <= 0) {
           this.app.stage.removeChild(fragment);

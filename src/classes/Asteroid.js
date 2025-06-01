@@ -5,11 +5,10 @@ export class Asteroid {
     this.app = app;
     this.sprite = new Sprite(texture);
     this.sprite.width = 150;
-    this.sprite.height = 150;
-    this.sprite.x = x;
+    this.sprite.height = 150;    this.sprite.x = x;
     this.sprite.y = y;
-    this.speedX = Math.random() * 2 - 1; // Горизонтальная скорость (-1 до 1)
-    this.speedY = Math.random() * 2 + 1; // Вертикальная скорость (1 до 3)
+    this.speedX = (Math.random() * 4 - 2); // Горизонтальная скорость (-2 до 2)
+    this.speedY = (Math.random() * 3 + 2); // Вертикальная скорость (2 до 5)
 
     this.app.stage.addChild(this.sprite);
   }
