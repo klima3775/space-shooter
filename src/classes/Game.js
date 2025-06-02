@@ -312,13 +312,24 @@ export class Game {
       this.restartButton.destroy();
       this.restartButton = null;
       // Убрали this.sounds.gameOver.play(), чтобы не было звука при рестарте
-    }
-
+    }    // Очищаємо всі текстові повідомлення та святкові ефекти
     this.app.stage.children.forEach((child) => {
       if (
         child instanceof Text &&
         (child.text === "YOU LOSE" || child.text === "YOU WIN")
       ) {
+        this.app.stage.removeChild(child);
+      }
+      // Очищаємо святкові частинки (Graphics елементи без текстури)
+      if (child instanceof Graphics && 
+          child !== this.timerText && 
+          child !== this.bulletText &&
+          child !== this.player?.sprite &&
+          !this.asteroids.some(asteroid => asteroid.sprite === child) &&
+          !this.bullets.some(bullet => bullet.sprite === child) &&
+          !this.wallBlocks.some(block => block.sprite === child) &&
+          child !== this.boss?.sprite &&
+          child !== this.boss?.hpBar) {
         this.app.stage.removeChild(child);
       }
     });
@@ -380,16 +391,70 @@ export class Game {
       this.resetTimer();
     }
   }
-
   endGame(message) {
     this.gameOver = true;
+    
+    // Спочатку очищаємо всі елементи ігрового поля
+    this.clearGameField();
+    
+    // Затримка для більш драматичного ефекту
+    setTimeout(() => {
+      this.showVictoryMessage(message);
+    }, 500);
+  }
+
+  clearGameField() {
+    // Очищаємо всі кулі
+    this.bullets.forEach((bullet) => {
+      this.app.stage.removeChild(bullet.sprite);
+    });
+    this.bullets = [];
+
+    // Очищаємо астероїди
+    this.asteroids.forEach((asteroid) => {
+      this.app.stage.removeChild(asteroid.sprite);
+    });
+    this.asteroids = [];
+
+    // Очищаємо стіну
+    this.wallBlocks.forEach((block) => {
+      block.destroy();
+    });
+    this.wallBlocks = [];
+
+    // Очищаємо боса
     if (this.boss) {
-      clearInterval(this.boss.shootingInterval);
+      if (this.boss.shootingInterval) {
+        clearInterval(this.boss.shootingInterval);
+      }
+      if (this.boss.burstInterval) {
+        clearInterval(this.boss.burstInterval);
+      }
+      if (this.boss.phaseChangeInterval) {
+        clearInterval(this.boss.phaseChangeInterval);
+      }
+      
+      this.boss.bullets.forEach((bullet) => {
+        this.app.stage.removeChild(bullet.sprite);
+      });
+      this.app.stage.removeChild(this.boss.sprite);
+      this.app.stage.removeChild(this.boss.hpBar);
+      this.boss = null;
+    }
+
+    // Зупиняємо фонову музику
+    this.sounds.backgroundMusic.stop();
+  }
+
+  showVictoryMessage(message) {
+    // Створюємо святковий ефект для перемоги
+    if (message === "YOU WIN") {
+      this.createCelebrationEffect();
     }
 
     const text = new Text(message, {
       fontSize: 50,
-      fill: 0xffffff,
+      fill: message === "YOU WIN" ? 0x00ff00 : 0xff0000,
       align: "center",
     });
     text.x = this.app.view.width / 2 - text.width / 2;
@@ -403,11 +468,43 @@ export class Game {
       this.app.view.height / 2 + 50
     );
 
-    this.sounds.backgroundMusic.stop();
-
     // Проигрываем звук поражения только при "YOU LOSE"
     if (message === "YOU LOSE") {
       this.sounds.gameOver.play();
+    }
+  }
+
+  createCelebrationEffect() {
+    // Створюємо святкові частинки
+    for (let i = 0; i < 20; i++) {
+      const particle = new Graphics();
+      particle.beginFill(0xffff00);
+      particle.drawCircle(0, 0, 5);
+      particle.endFill();
+      
+      particle.x = Math.random() * this.app.view.width;
+      particle.y = Math.random() * this.app.view.height;
+      
+      particle.vx = (Math.random() - 0.5) * 10;
+      particle.vy = (Math.random() - 0.5) * 10;
+      
+      this.app.stage.addChild(particle);
+      
+      const animate = () => {
+        particle.x += particle.vx;
+        particle.y += particle.vy;
+        particle.alpha -= 0.02;
+        
+        if (particle.alpha <= 0) {
+          this.app.stage.removeChild(particle);
+        } else {
+          requestAnimationFrame(animate);
+        }
+      };
+      
+      setTimeout(() => {
+        animate();
+      }, i * 100);
     }
   }
 

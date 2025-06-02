@@ -8,11 +8,10 @@ export class Boss {
     this.sprite = new Sprite(texture);
     this.sprite.width = 150;
     this.sounds = sounds;
-    this.sprite.height = 100;
-    this.sprite.x = app.screen.width / 2 - 75;
+    this.sprite.height = 100;    this.sprite.x = app.screen.width / 2 - 75;
     this.sprite.y = 50;
-    this.hp = 12;
-    this.hpBar = new Graphics();    this.bullets = [];
+    this.hp = 7;
+    this.hpBar = new Graphics();this.bullets = [];
     this.movingDirection = 1;
     this.speed = 6;
     this.phase = 1;    this.shootingInterval = null;
