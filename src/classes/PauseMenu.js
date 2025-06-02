@@ -6,7 +6,7 @@ export class PauseMenu {
     this.app = app;
     this.container = new Container();
     this.container.visible = false;
-    this.app.stage.addChild(this.container);
+    // НЕ додаємо контейнер до stage тут - додамо при показі
 
     const background = new Graphics();
     background.beginFill(0x000000, 0.7);
@@ -33,20 +33,26 @@ export class PauseMenu {
     resumeText.interactive = true;
     resumeText.buttonMode = true;
     resumeText.on("pointerdown", onResume);
-    this.container.addChild(resumeText);
-
-    // Кнопка "Restart" через отдельный класс
+    this.container.addChild(resumeText);    // Кнопка "Restart" через відокремлений клас, але додаємо її до контейнера
     this.restartButton = new RestartButton(this.app, onRestart);
+    // Видаляємо кнопку з основного stage та додаємо до нашого контейнера
+    this.app.stage.removeChild(this.restartButton.button);
     this.container.addChild(this.restartButton.button);
-  }
-
-  show() {
+  }  show() {
     this.container.visible = true;
-    this.restartButton.show();
+    // Перевіряємо, чи контейнер вже доданий до stage
+    if (!this.app.stage.children.includes(this.container)) {
+      this.app.stage.addChild(this.container);
+    } else {
+      // Якщо вже доданий, переміщуємо на самий верх
+      this.app.stage.removeChild(this.container);
+      this.app.stage.addChild(this.container);
+    }
+    // Не потрібно окремо показувати кнопку, вона вже в контейнері
   }
 
   hide() {
     this.container.visible = false;
-    this.restartButton.hide();
+    // Не потрібно окремо приховувати кнопку, вона вже в контейнері
   }
 }

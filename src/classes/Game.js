@@ -65,11 +65,9 @@ export class Game {
       fill: 0xffffff,
     });
     this.bulletText.x = 10;
-    this.bulletText.y = 40;
-
-    this.app.stage.addChild(this.timerText);
+    this.bulletText.y = 40;    this.app.stage.addChild(this.timerText);
     this.app.stage.addChild(this.bulletText);
-    this.app.stage.addChild(this.pauseMenu.container);
+    // Видаляємо цей рядок, оскільки контейнер додається в show()
     this.init();
   }
 
@@ -366,10 +364,9 @@ export class Game {
         this.app.stage.removeChild(bullet.sprite);
       });
       this.bullets = [];
-      this.resetTimer();
-    } else if (this.level === 2 && !this.boss) {
+      this.resetTimer();    } else if (this.level === 2 && !this.boss) {
       this.level = 3;
-      this.boss = new Boss(this.app, this.textures.boss, this.sounds);
+      this.boss = new Boss(this.app, this.textures.boss, this.sounds, this);
       this.createWall();
       this.bulletCount = 0;
       this.maxBullets = 40;

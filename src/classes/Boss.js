@@ -15,8 +15,7 @@ export class Boss {
     this.hpBar = new Graphics();    this.bullets = [];
     this.movingDirection = 1;
     this.speed = 6;
-    this.phase = 1;
-    this.shootingInterval = null;
+    this.phase = 1;    this.shootingInterval = null;
     this.burstInterval = null;
     this.isBursting = false;
     this.phaseChangeInterval = null;
@@ -111,20 +110,23 @@ export class Boss {
       this.bullets.push(bullet);
       this.app.stage.addChild(bullet.sprite);
     });
-  }
-  shootBurst() {
+  }  shootBurst() {
     if (this.game.paused || this.isBursting) return;
     this.sounds.enemyShoot.play();
     this.isBursting = true;
     let burstCount = 0;
-    const maxBursts = 3;    this.burstInterval = setInterval(() => {
+    const maxBursts = 3;
+
+    this.burstInterval = setInterval(() => {
       if (this.game.paused || this.game.gameOver) {
         clearInterval(this.burstInterval);
+        this.burstInterval = null;
         this.isBursting = false;
         return;
       }
 
-      [-0.5, 0.5].forEach((dir) => {        const bullet = new Bullet(
+      [-0.5, 0.5].forEach((dir) => {
+        const bullet = new Bullet(
           this.app,
           this.sprite.x + this.sprite.width / 2 + dir * 20,
           this.sprite.y + this.sprite.height,
@@ -140,6 +142,7 @@ export class Boss {
       burstCount++;
       if (burstCount >= maxBursts) {
         clearInterval(this.burstInterval);
+        this.burstInterval = null;
         this.isBursting = false;
       }
     }, 300);
@@ -189,11 +192,9 @@ export class Boss {
         this.bullets.splice(index, 1);
       }
     });
-  }
-
-  pause(paused) {
+  }  pause(paused) {
     if (paused) {
-      
+      // Останавливаем все интервалы при паузе
       if (this.shootingInterval) {
         clearInterval(this.shootingInterval);
         this.shootingInterval = null;
@@ -208,14 +209,13 @@ export class Boss {
         this.phaseChangeInterval = null;
       }
     } else {
-      
+      // Восстанавливаем интервалы при снятии паузы
       if (!this.shootingInterval) {
         this.startShooting();
       }
       if (!this.phaseChangeInterval) {
         this.startPhaseChangeTimer();
       }
-      
     }
   }
 
