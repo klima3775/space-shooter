@@ -54,13 +54,13 @@ export class Game {
 
     this.starBackground = new StarBackground(app);
     this.timer = 60;
-    this.timerText = new Text(`Время: ${this.timer}`, {
+    this.timerText = new Text(`Time: ${this.timer}`, {
       fontSize: 24,
       fill: 0xffffff,
     });
     this.timerText.x = 10;
     this.timerText.y = 10;
-    this.bulletText = new Text(`Пули: ${this.maxBullets}`, {
+    this.bulletText = new Text(`Bullets: ${this.maxBullets}`, {
       fontSize: 24,
       fill: 0xffffff,
     });
@@ -76,14 +76,12 @@ export class Game {
   async init() {
     await this.starBackground.init();
 
-    this.sounds.backgroundMusic.play();
-
-    if (this.level === 1) {
+    this.sounds.backgroundMusic.play();    if (this.level === 1) {
       this.createAsteroids();
     } else if (this.level === 2) {
-      this.boss = new Boss(this.app, this.textures.boss, this.sounds);
+      this.boss = new Boss(this.app, this.textures.boss, this.sounds, this);
     } else if (this.level === 3) {
-      this.boss = new Boss(this.app, this.textures.boss, this.sounds);
+      this.boss = new Boss(this.app, this.textures.boss, this.sounds, this);
       this.createWall();
     }
 
@@ -141,7 +139,7 @@ export class Game {
       // Воспроизведение звука выстрела игрока
       this.sounds.playerShoot.play();
 
-      this.bulletText.text = `Пули: ${Math.max(
+      this.bulletText.text = `Bullets: ${Math.max(
         this.maxBullets - this.bulletCount,
         0
       )}`;
@@ -329,7 +327,7 @@ export class Game {
 
     this.bulletCount = 0;
     this.maxBullets = 30;
-    this.bulletText.text = `Пули: ${this.maxBullets}`;
+    this.bulletText.text = `Bullets: ${this.maxBullets}`;
 
     this.player.destroy();
     this.app.stage.removeChild(this.player.sprite);
@@ -356,16 +354,14 @@ export class Game {
     if (this.boss) {
       this.boss.update();
     }
-    this.checkCollisions();
-
-    if (this.level === 1 && this.asteroids.length === 0) {
+    this.checkCollisions();    if (this.level === 1 && this.asteroids.length === 0) {
       this.level = 2;
-      this.boss = new Boss(this.app, this.textures.boss, this.sounds);
+      this.boss = new Boss(this.app, this.textures.boss, this.sounds, this);
       this.bulletCount = 0;
       this.maxBullets = 30;
       this.timer = 120;
-      this.timerText.text = `Время: ${this.timer}`;
-      this.bulletText.text = `Пули: ${this.maxBullets}`;
+      this.timerText.text = `Time: ${this.timer}`;
+      this.bulletText.text = `Bullet: ${this.maxBullets}`;
       this.bullets.forEach((bullet) => {
         this.app.stage.removeChild(bullet.sprite);
       });
@@ -378,8 +374,8 @@ export class Game {
       this.bulletCount = 0;
       this.maxBullets = 40;
       this.timer = 150;
-      this.timerText.text = `Время: ${this.timer}`;
-      this.bulletText.text = `Пули: ${this.maxBullets}`;
+      this.timerText.text = `Time: ${this.timer}`;
+      this.bulletText.text = `Bullets: ${this.maxBullets}`;
       this.bullets.forEach((bullet) => {
         this.app.stage.removeChild(bullet.sprite);
       });
@@ -436,7 +432,7 @@ export class Game {
         return;
       }
       this.timer--;
-      this.timerText.text = `Время: ${this.timer}`;
+      this.timerText.text = `Time: ${this.timer}`;
       if (this.timer <= 0) {
         clearInterval(this.timerInterval);
         this.endGame("YOU LOSE");
@@ -447,7 +443,7 @@ export class Game {
   resetTimer() {
     clearInterval(this.timerInterval);
     this.timer = this.level === 1 ? 60 : this.level === 2 ? 120 : 150;
-    this.timerText.text = `Время: ${this.timer}`;
+    this.timerText.text = `Time: ${this.timer}`;
     this.startTimer();
   }
 }

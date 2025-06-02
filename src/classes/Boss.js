@@ -2,8 +2,9 @@ import { Graphics, Sprite } from "pixi.js";
 import { Bullet } from "./Bullet.js";
 
 export class Boss {
-  constructor(app, texture, sounds) {
+  constructor(app, texture, sounds, game) {
     this.app = app;
+    this.game = game;
     this.sprite = new Sprite(texture);
     this.sprite.width = 150;
     this.sounds = sounds;
@@ -36,10 +37,9 @@ export class Boss {
     this.startShooting();
     this.startPhaseChangeTimer();
   }
-
   startShooting() {
     this.shootingInterval = setInterval(() => {
-      if (this.app.gameOver || this.app.paused) {
+      if (this.game.gameOver || this.game.paused) {
         return;
       }
 
@@ -54,14 +54,13 @@ export class Boss {
       }
     }, 2000);
   }
-
   startPhaseChangeTimer() {
     if (this.phaseChangeInterval) {
       clearInterval(this.phaseChangeInterval);
     }
 
     this.phaseChangeInterval = setInterval(() => {
-      if (this.app.gameOver || this.app.paused) {
+      if (this.game.gameOver || this.game.paused) {
         return;
       }
 
@@ -83,10 +82,9 @@ export class Boss {
     this.hpBar.drawRect(this.sprite.x, this.sprite.y - 10, barWidth, 5);
     this.hpBar.endFill();
   }
-
   shoot() {
-    if (this.app.paused) return;
-    this.sounds.enemyShoot.play();    const bullet = new Bullet(
+    if (this.game.paused) return;
+    this.sounds.enemyShoot.play();const bullet = new Bullet(
       this.app,
       this.sprite.x + this.sprite.width / 2,
       this.sprite.y + this.sprite.height,
@@ -97,9 +95,8 @@ export class Boss {
     this.bullets.push(bullet);
     this.app.stage.addChild(bullet.sprite);
   }
-
   shootMultiple() {
-    if (this.app.paused) return;
+    if (this.game.paused) return;
     this.sounds.enemyShoot.play();
     const directions = [-1, 0, 1];
     directions.forEach((dir) => {      const bullet = new Bullet(
@@ -115,16 +112,13 @@ export class Boss {
       this.app.stage.addChild(bullet.sprite);
     });
   }
-
   shootBurst() {
-    if (this.app.paused || this.isBursting) return;
+    if (this.game.paused || this.isBursting) return;
     this.sounds.enemyShoot.play();
     this.isBursting = true;
     let burstCount = 0;
-    const maxBursts = 3;
-
-    this.burstInterval = setInterval(() => {
-      if (this.app.paused || this.app.gameOver) {
+    const maxBursts = 3;    this.burstInterval = setInterval(() => {
+      if (this.game.paused || this.game.gameOver) {
         clearInterval(this.burstInterval);
         this.isBursting = false;
         return;
@@ -150,9 +144,8 @@ export class Boss {
       }
     }, 300);
   }
-
   move() {
-    if (this.app.paused) return;
+    if (this.game.paused) return;
 
     this.sprite.x += this.speed * this.movingDirection;
 
@@ -179,9 +172,8 @@ export class Boss {
 
     return false;
   }
-
   update() {
-    if (this.app.paused) return;
+    if (this.game.paused) return;
 
     this.move();
 
