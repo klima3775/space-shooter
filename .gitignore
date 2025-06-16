@@ -39,3 +39,6 @@ ehthumbs.db
 
 # VSCode
 .vscode/
+
+# Build directory
+dist/
